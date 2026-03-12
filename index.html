@@ -642,6 +642,137 @@
     main { padding: 24px 20px; }
     .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
   }
+
+  /* RENDICONTO FINANZIARIO */
+  .cash-flow-section {
+    border-left: 4px solid;
+    padding-left: 16px;
+    margin-bottom: 8px;
+  }
+  .cash-flow-section.operativa { border-color: var(--green-light); }
+  .cash-flow-section.investimento { border-color: var(--amber-light); }
+  .cash-flow-section.finanziamento { border-color: var(--gold); }
+
+  .cf-total-row td {
+    background: var(--navy) !important;
+    color: var(--cream) !important;
+    font-weight: 700;
+    font-family: 'DM Mono', monospace;
+  }
+  .cf-positive { color: var(--green); font-weight: 600; }
+  .cf-negative { color: var(--red-light); font-weight: 600; }
+  .cf-neutral { color: var(--text-muted); }
+
+  .cf-summary-bar {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .cf-summary-card {
+    background: var(--white);
+    border-radius: 10px;
+    padding: 18px 20px;
+    box-shadow: var(--shadow);
+    border-top: 4px solid;
+  }
+  .cf-summary-card.op { border-color: var(--green-light); }
+  .cf-summary-card.inv { border-color: var(--amber-light); }
+  .cf-summary-card.fin { border-color: var(--gold); }
+  .cf-summary-card.net { border-color: var(--navy); }
+
+  .cf-summary-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+  .cf-summary-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+  }
+
+  /* COMMENTI */
+  .diagnosis-card {
+    background: var(--white);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+    border-left: 5px solid;
+  }
+  .diagnosis-card.positive { border-color: var(--green-light); }
+  .diagnosis-card.warning { border-color: var(--amber-light); }
+  .diagnosis-card.critical { border-color: var(--red-light); }
+  .diagnosis-card.neutral { border-color: var(--navy3); }
+
+  .diagnosis-icon {
+    font-size: 1.5rem;
+    margin-bottom: 8px;
+  }
+  .diagnosis-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 10px;
+  }
+  .diagnosis-text {
+    font-size: 0.88rem;
+    line-height: 1.7;
+    color: var(--text);
+  }
+  .diagnosis-text strong { color: var(--navy); }
+
+  .score-meter {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: var(--white);
+    border-radius: 12px;
+    padding: 20px 24px;
+    box-shadow: var(--shadow);
+    margin-bottom: 28px;
+  }
+  .score-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border: 4px solid;
+  }
+  .score-circle .score-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .score-circle .score-max {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+  }
+  .score-circle.A { border-color: var(--green); color: var(--green); background: rgba(82,183,136,0.08); }
+  .score-circle.B { border-color: var(--green-light); color: var(--green); background: rgba(82,183,136,0.05); }
+  .score-circle.C { border-color: var(--amber-light); color: var(--amber); background: rgba(244,162,97,0.08); }
+  .score-circle.D { border-color: var(--red-light); color: var(--red); background: rgba(230,57,70,0.08); }
+
+  .trend-arrow {
+    display: inline-block;
+    font-size: 0.9rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+  .trend-up { background: rgba(82,183,136,0.15); color: var(--green); }
+  .trend-down { background: rgba(230,57,70,0.1); color: var(--red-light); }
+  .trend-flat { background: var(--cream2); color: var(--text-muted); }
 </style>
 </head>
 <body>
@@ -667,6 +798,8 @@
   <div class="nav-tab" onclick="switchTab('indici')">③ Indici di Bilancio</div>
   <div class="nav-tab" onclick="switchTab('grafici')">④ Grafici</div>
   <div class="nav-tab" onclick="switchTab('confronto')">⑤ Confronto Anni</div>
+  <div class="nav-tab" onclick="switchTab('rendiconto')">⑥ Rendiconto Finanziario</div>
+  <div class="nav-tab" onclick="switchTab('commenti')">⑦ Commenti & Diagnosi</div>
 </nav>
 
 <main>
@@ -920,41 +1053,117 @@
         <div id="import-alert-y2" style="margin-top:12px;"></div>
       </div>
 
-      <!-- Anno 2: Manuale -->
+      <!-- Anno 2: Manuale — identico all'Anno 1 campo per campo -->
       <div id="y2-manual-section">
-      <div class="grid-3">
-        <div>
-          <div class="sep">Stato Patrimoniale Attivo</div>
-          <div class="form-group"><label>Imm. Immateriali</label><input type="number" id="y2_immImm" placeholder="0"></div>
-          <div class="form-group"><label>Imm. Materiali</label><input type="number" id="y2_immMat" placeholder="0"></div>
-          <div class="form-group"><label>Imm. Finanziarie</label><input type="number" id="y2_immFin" placeholder="0"></div>
-          <div class="form-group"><label>Rimanenze</label><input type="number" id="y2_rimanenze" placeholder="0"></div>
-          <div class="form-group"><label>Crediti Commerciali</label><input type="number" id="y2_creditiComm" placeholder="0"></div>
-          <div class="form-group"><label>Liquidità</label><input type="number" id="y2_cassa" placeholder="0"></div>
-          <div class="form-group"><label>Altri Crediti/Ratei</label><input type="number" id="y2_altriAtt" placeholder="0"></div>
+      <div class="grid-2" style="gap:28px;">
+
+        <!-- ATTIVO -->
+        <div class="card">
+          <div class="card-header"><div><h3>📋 Stato Patrimoniale — ATTIVO</h3></div></div>
+          <div class="card-body">
+            <div class="sep">Immobilizzazioni Immateriali</div>
+            <div class="grid-2">
+              <div class="form-group"><label>Avviamento</label><input type="number" id="y2_avviamento" placeholder="0"></div>
+              <div class="form-group"><label>Brevetti &amp; Marchi</label><input type="number" id="y2_brevetti" placeholder="0"></div>
+              <div class="form-group"><label>Costi di Sviluppo</label><input type="number" id="y2_costiSviluppo" placeholder="0"></div>
+              <div class="form-group"><label>Altre Imm. Immateriali</label><input type="number" id="y2_altreImmImm" placeholder="0"></div>
+            </div>
+            <div class="sep">Immobilizzazioni Materiali</div>
+            <div class="grid-2">
+              <div class="form-group"><label>Terreni &amp; Fabbricati</label><input type="number" id="y2_terreni" placeholder="0"></div>
+              <div class="form-group"><label>Impianti &amp; Macchinari</label><input type="number" id="y2_impianti" placeholder="0"></div>
+              <div class="form-group"><label>Attrezzature</label><input type="number" id="y2_attrezzature" placeholder="0"></div>
+              <div class="form-group"><label>Altre Imm. Materiali</label><input type="number" id="y2_altreImmMat" placeholder="0"></div>
+            </div>
+            <div class="sep">Immobilizzazioni Finanziarie</div>
+            <div class="grid-2">
+              <div class="form-group"><label>Partecipazioni</label><input type="number" id="y2_partecipazioni" placeholder="0"></div>
+              <div class="form-group"><label>Crediti Finanziari L/T</label><input type="number" id="y2_creditiFinLT" placeholder="0"></div>
+              <div class="form-group"><label>Titoli Immobilizzati</label><input type="number" id="y2_titoliImm" placeholder="0"></div>
+            </div>
+            <div class="sep">Attivo Circolante</div>
+            <div class="grid-2">
+              <div class="form-group"><label>Rimanenze (Scorte)</label><input type="number" id="y2_rimanenze" placeholder="0"></div>
+              <div class="form-group"><label>Crediti Commerciali</label><input type="number" id="y2_creditiComm" placeholder="0"></div>
+              <div class="form-group"><label>Crediti Tributari</label><input type="number" id="y2_creditiTrib" placeholder="0"></div>
+              <div class="form-group"><label>Disponibilità Liquide</label><input type="number" id="y2_cassa" placeholder="0"></div>
+              <div class="form-group"><label>Attività Finanziarie C/T</label><input type="number" id="y2_attivFinCT" placeholder="0"></div>
+              <div class="form-group"><label>Altri Crediti</label><input type="number" id="y2_altriCrediti" placeholder="0"></div>
+            </div>
+            <div class="sep">Ratei &amp; Risconti Attivi</div>
+            <div class="form-group"><label>Ratei e Risconti Attivi</label><input type="number" id="y2_rateiAttivi" placeholder="0"></div>
+          </div>
         </div>
-        <div>
-          <div class="sep">Stato Patrimoniale Passivo</div>
-          <div class="form-group"><label>Patrimonio Netto</label><input type="number" id="y2_pn" placeholder="0"></div>
-          <div class="form-group"><label>Fondi (TFR ecc.)</label><input type="number" id="y2_fondi" placeholder="0"></div>
-          <div class="form-group"><label>Debiti Bancari L/T</label><input type="number" id="y2_debBancLT" placeholder="0"></div>
-          <div class="form-group"><label>Altri Debiti L/T</label><input type="number" id="y2_debLT" placeholder="0"></div>
-          <div class="form-group"><label>Debiti Bancari C/T</label><input type="number" id="y2_debBancCT" placeholder="0"></div>
-          <div class="form-group"><label>Debiti Fornitori</label><input type="number" id="y2_debForn" placeholder="0"></div>
-          <div class="form-group"><label>Altri Debiti C/T</label><input type="number" id="y2_debCT" placeholder="0"></div>
+
+        <!-- PASSIVO -->
+        <div class="card">
+          <div class="card-header"><div><h3>📋 Stato Patrimoniale — PASSIVO &amp; P.N.</h3></div></div>
+          <div class="card-body">
+            <div class="sep">Patrimonio Netto</div>
+            <div class="grid-2">
+              <div class="form-group"><label>Capitale Sociale</label><input type="number" id="y2_capitaleSociale" placeholder="0"></div>
+              <div class="form-group"><label>Riserve</label><input type="number" id="y2_riserve" placeholder="0"></div>
+              <div class="form-group"><label>Utile/Perdita d'Esercizio</label><input type="number" id="y2_utileEsercizio" placeholder="0"></div>
+              <div class="form-group"><label>Altre Riserve PN</label><input type="number" id="y2_altreRiserve" placeholder="0"></div>
+            </div>
+            <div class="sep">Fondi per Rischi &amp; Oneri</div>
+            <div class="grid-2">
+              <div class="form-group"><label>Fondo TFR</label><input type="number" id="y2_fondoTFR" placeholder="0"></div>
+              <div class="form-group"><label>Altri Fondi Rischi</label><input type="number" id="y2_altriFondi" placeholder="0"></div>
+            </div>
+            <div class="sep">Debiti (M/L Termine)</div>
+            <div class="grid-2">
+              <div class="form-group"><label>Debiti Bancari L/T</label><input type="number" id="y2_debitiBancariLT" placeholder="0"></div>
+              <div class="form-group"><label>Obbligazioni</label><input type="number" id="y2_obbligazioni" placeholder="0"></div>
+              <div class="form-group"><label>Debiti vs Soci L/T</label><input type="number" id="y2_debitiSociLT" placeholder="0"></div>
+              <div class="form-group"><label>Altri Debiti L/T</label><input type="number" id="y2_altriDebitiLT" placeholder="0"></div>
+            </div>
+            <div class="sep">Debiti (Breve Termine)</div>
+            <div class="grid-2">
+              <div class="form-group"><label>Debiti Bancari C/T</label><input type="number" id="y2_debitiBancariCT" placeholder="0"></div>
+              <div class="form-group"><label>Debiti Fornitori</label><input type="number" id="y2_debitiFornitori" placeholder="0"></div>
+              <div class="form-group"><label>Debiti Tributari</label><input type="number" id="y2_debitiTrib" placeholder="0"></div>
+              <div class="form-group"><label>Debiti vs Dipendenti</label><input type="number" id="y2_debitiDip" placeholder="0"></div>
+              <div class="form-group"><label>Altri Debiti C/T</label><input type="number" id="y2_altriDebitiCT" placeholder="0"></div>
+            </div>
+            <div class="sep">Ratei &amp; Risconti Passivi</div>
+            <div class="form-group"><label>Ratei e Risconti Passivi</label><input type="number" id="y2_rateiPassivi" placeholder="0"></div>
+          </div>
         </div>
-        <div>
-          <div class="sep">Conto Economico</div>
-          <div class="form-group"><label>Ricavi Vendite</label><input type="number" id="y2_ricavi" placeholder="0"></div>
-          <div class="form-group"><label>Altri Ricavi</label><input type="number" id="y2_altriRicavi" placeholder="0"></div>
-          <div class="form-group"><label>Costi Materie Prime</label><input type="number" id="y2_materie" placeholder="0"></div>
-          <div class="form-group"><label>Costi Servizi</label><input type="number" id="y2_servizi" placeholder="0"></div>
-          <div class="form-group"><label>Costi Personale</label><input type="number" id="y2_personale" placeholder="0"></div>
-          <div class="form-group"><label>Ammortamenti</label><input type="number" id="y2_ammort" placeholder="0"></div>
-          <div class="form-group"><label>Oneri Finanziari</label><input type="number" id="y2_oneriFinanz" placeholder="0"></div>
-          <div class="form-group"><label>Imposte</label><input type="number" id="y2_imposte" placeholder="0"></div>
+
+      </div><!-- /grid-2 SP -->
+
+      <!-- CONTO ECONOMICO Anno 2 -->
+      <div class="card" style="margin-top:24px;">
+        <div class="card-header"><div><h3>📈 Conto Economico</h3></div></div>
+        <div class="card-body">
+          <div class="grid-3">
+            <div>
+              <div class="sep">Valore della Produzione</div>
+              <div class="form-group"><label>Ricavi delle Vendite</label><input type="number" id="y2_ricavi" placeholder="0"></div>
+              <div class="form-group"><label>Variaz. Rimanenze Prodotti</label><input type="number" id="y2_varRimanenze" placeholder="0"></div>
+              <div class="form-group"><label>Altri Ricavi e Proventi</label><input type="number" id="y2_altriRicavi" placeholder="0"></div>
+            </div>
+            <div>
+              <div class="sep">Costi della Produzione</div>
+              <div class="form-group"><label>Acquisto Materie Prime</label><input type="number" id="y2_materePrime" placeholder="0"></div>
+              <div class="form-group"><label>Costi per Servizi</label><input type="number" id="y2_costiServizi" placeholder="0"></div>
+              <div class="form-group"><label>Costi del Personale</label><input type="number" id="y2_costiPersonale" placeholder="0"></div>
+              <div class="form-group"><label>Ammortamenti</label><input type="number" id="y2_ammortamenti" placeholder="0"></div>
+              <div class="form-group"><label>Svalutazioni</label><input type="number" id="y2_svalutazioni" placeholder="0"></div>
+              <div class="form-group"><label>Altri Costi Operativi</label><input type="number" id="y2_altriCostiOp" placeholder="0"></div>
+            </div>
+            <div>
+              <div class="sep">Gestione Finanziaria &amp; Imposte</div>
+              <div class="form-group"><label>Proventi Finanziari</label><input type="number" id="y2_proventiFinanz" placeholder="0"></div>
+              <div class="form-group"><label>Oneri Finanziari (interessi)</label><input type="number" id="y2_oneriFinanz" placeholder="0"></div>
+              <div class="form-group"><label>Proventi/Oneri Straordinari</label><input type="number" id="y2_straordinari" placeholder="0"></div>
+              <div class="form-group"><label>Imposte dell'Esercizio</label><input type="number" id="y2_imposte" placeholder="0"></div>
+            </div>
+          </div>
         </div>
       </div>
+
       </div><!-- /y2-manual-section -->
 
       <div style="margin-top:16px; display:flex; justify-content:flex-end;">
@@ -963,6 +1172,25 @@
     </div>
   </div>
   <div id="confronto-content"></div>
+</div>
+
+
+<!-- ===================== TAB 6: RENDICONTO FINANZIARIO ===================== -->
+<div id="tab-rendiconto" class="section">
+  <h2 class="section-title">Rendiconto Finanziario</h2>
+  <p class="section-subtitle">Analisi dei flussi di cassa per area gestionale (metodo indiretto). Richiede i dati di entrambi gli anni.</p>
+  <div id="rendiconto-content">
+    <div class="alert alert-info">ℹ️ Elabora i dati di entrambi gli anni dal tab "Confronto Anni" per generare il rendiconto finanziario.</div>
+  </div>
+</div>
+
+<!-- ===================== TAB 7: COMMENTI & DIAGNOSI ===================== -->
+<div id="tab-commenti" class="section">
+  <h2 class="section-title">Commenti & Diagnosi Strategica</h2>
+  <p class="section-subtitle">Analisi qualitativa automatica basata sugli indici e sull'evoluzione biennale.</p>
+  <div id="commenti-content">
+    <div class="alert alert-info">ℹ️ Elabora i dati di entrambi gli anni dal tab "Confronto Anni" per generare la diagnosi.</div>
+  </div>
 </div>
 
 </main>
@@ -1063,8 +1291,9 @@ let data2 = null;
 function switchTab(tab) {
   document.querySelectorAll('.nav-tab').forEach((t,i) => t.classList.remove('active'));
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  const tabs = ['input','riclass','indici','grafici','confronto'];
-  document.querySelectorAll('.nav-tab')[tabs.indexOf(tab)].classList.add('active');
+  const tabs = ['input','riclass','indici','grafici','confronto','rendiconto','commenti'];
+  const idx = tabs.indexOf(tab);
+  if(idx >= 0) document.querySelectorAll('.nav-tab')[idx].classList.add('active');
   document.getElementById('tab-'+tab).classList.add('active');
 }
 
@@ -1568,17 +1797,35 @@ function renderGrafici(d) {
 function elaboraConfronto() {
   if(!data1) { alert('Elabora prima i dati del primo anno.'); return; }
 
-  const y2r = v('y2_ricavi')+v('y2_altriRicavi');
-  const y2costiOp = v('y2_materie')+v('y2_servizi')+v('y2_personale')+v('y2_ammort');
-  const y2ebitda = y2r - v('y2_materie') - v('y2_servizi') - v('y2_personale');
-  const y2ebit = y2ebitda - v('y2_ammort');
-  const y2ebt = y2ebit - v('y2_oneriFinanz');
-  const y2utile = y2ebt - v('y2_imposte');
-  const y2immTot = v('y2_immImm')+v('y2_immMat')+v('y2_immFin');
-  const y2circTot = v('y2_rimanenze')+v('y2_creditiComm')+v('y2_cassa')+v('y2_altriAtt');
-  const y2att = y2immTot + y2circTot;
-  const y2pn = v('y2_pn'), y2fondi=v('y2_fondi'), y2debLT=v('y2_debBancLT')+v('y2_debLT'), y2debCT=v('y2_debBancCT')+v('y2_debForn')+v('y2_debCT');
-  const y2pass = y2pn+y2fondi+y2debLT+y2debCT;
+  // Anno 2 — stessa logica di collectData1
+  const y2_immImm   = v('y2_avviamento')+v('y2_brevetti')+v('y2_costiSviluppo')+v('y2_altreImmImm');
+  const y2_immMat   = v('y2_terreni')+v('y2_impianti')+v('y2_attrezzature')+v('y2_altreImmMat');
+  const y2_immFin   = v('y2_partecipazioni')+v('y2_creditiFinLT')+v('y2_titoliImm');
+  const y2immTot    = y2_immImm + y2_immMat + y2_immFin;
+
+  const y2_rim       = v('y2_rimanenze');
+  const y2_creditiComm = v('y2_creditiComm');
+  const y2_creditiTrib = v('y2_creditiTrib');
+  const y2_cassa     = v('y2_cassa');
+  const y2_attivFinCT= v('y2_attivFinCT');
+  const y2_altriCrediti = v('y2_altriCrediti');
+  const y2circTot    = y2_rim + y2_creditiComm + y2_creditiTrib + y2_cassa + y2_attivFinCT + y2_altriCrediti;
+  const y2_rateiAtt  = v('y2_rateiAttivi');
+  const y2att        = y2immTot + y2circTot + y2_rateiAtt;
+
+  const y2pn    = v('y2_capitaleSociale')+v('y2_riserve')+v('y2_utileEsercizio')+v('y2_altreRiserve');
+  const y2fondi = v('y2_fondoTFR')+v('y2_altriFondi');
+  const y2debLT = v('y2_debitiBancariLT')+v('y2_obbligazioni')+v('y2_debitiSociLT')+v('y2_altriDebitiLT');
+  const y2debCT = v('y2_debitiBancariCT')+v('y2_debitiFornitori')+v('y2_debitiTrib')+v('y2_debitiDip')+v('y2_altriDebitiCT');
+  const y2_rateiPass = v('y2_rateiPassivi');
+  const y2pass  = y2pn + y2fondi + y2debLT + y2debCT + y2_rateiPass;
+
+  const y2r      = v('y2_ricavi')+v('y2_varRimanenze')+v('y2_altriRicavi');
+  const y2ebitda = y2r - v('y2_materePrime') - v('y2_costiServizi') - v('y2_costiPersonale') - v('y2_altriCostiOp');
+  const y2ebit   = y2ebitda - v('y2_ammortamenti') - v('y2_svalutazioni');
+  const y2ebt    = y2ebit + v('y2_proventiFinanz') - v('y2_oneriFinanz') + v('y2_straordinari');
+  const y2utile  = y2ebt - v('y2_imposte');
+
   const year2 = document.getElementById('year2').value || '2023';
 
   function diff(a,b) {
@@ -1602,7 +1849,7 @@ function elaboraConfronto() {
   const i2 = {
     roe: y2utile/(y2pn||1), roi: y2ebit/(y2att||1), ros: y2ebit/(y2r||1),
     currentRatio: y2circTot/(y2debCT||1), debt_equity: (y2debLT+y2debCT)/(y2pn||1),
-    pfn_ebitda: (y2debLT+y2debCT-v('y2_cassa'))/(y2ebitda||1)
+    pfn_ebitda: (y2debLT+y2debCT-y2_cassa-y2_attivFinCT)/(y2ebitda||1)
   };
   const i1 = {
     roe:data1.utileNetto/(data1.pn||1), roi:data1.ebit/(data1.totAttivo||1), ros:data1.ebit/(data1.ricavi||1),
@@ -1618,13 +1865,13 @@ function elaboraConfronto() {
         <thead><tr><th>Voce</th><th style="text-align:right">${data1.year}</th><th style="text-align:right">${year2}</th><th style="text-align:right">Variaz. Ass.</th><th style="text-align:right">Variaz. %</th></tr></thead>
         <tbody>
           <tr><td colspan="5" class="indici-category">ATTIVO</td></tr>
-          ${confRow('Imm. Immateriali', data1.immImm, v('y2_immImm'))}
-          ${confRow('Imm. Materiali', data1.immMat, v('y2_immMat'))}
-          ${confRow('Imm. Finanziarie', data1.immFin, v('y2_immFin'))}
+          ${confRow('Imm. Immateriali', data1.immImm, y2_immImm)}
+          ${confRow('Imm. Materiali', data1.immMat, y2_immMat)}
+          ${confRow('Imm. Finanziarie', data1.immFin, y2_immFin)}
           ${confRow('Totale Attivo Fisso', data1.totalImm, y2immTot)}
-          ${confRow('Rimanenze', data1.rim, v('y2_rimanenze'))}
-          ${confRow('Crediti Commerciali', data1.creditiComm, v('y2_creditiComm'))}
-          ${confRow('Liquidità', data1.cassa, v('y2_cassa'))}
+          ${confRow('Rimanenze', data1.rim, y2_rim)}
+          ${confRow('Crediti Commerciali', data1.creditiComm, y2_creditiComm)}
+          ${confRow('Liquidità', data1.cassa, y2_cassa)}
           ${confRow('Totale Attivo Circolante', data1.totalCirc, y2circTot)}
           <tr class="row-total">${confRow('TOTALE ATTIVO', data1.totAttivo, y2att).replace('<tr>','').replace('</tr>','')}</tr>
           <tr><td colspan="5" class="indici-category">PASSIVO</td></tr>
@@ -1694,6 +1941,52 @@ function elaboraConfronto() {
       });
     } catch(e){}
   }, 50);
+
+  // Costruiamo oggetto dati anno 2 per rendiconto e commenti
+  const d2ForExtras = {
+    ricaviTot: y2r,
+    ebitda: y2ebitda,
+    ebit: y2ebit,
+    utileNetto: y2utile,
+    cassa: y2_cassa,
+    attivFinCT: y2_attivFinCT,
+    creditiComm: y2_creditiComm,
+    rim: y2_rim,
+    debFornitori: v('y2_debitiFornitori'),
+    circTot: y2circTot,
+    debCT: y2debCT,
+    immMat: y2_immMat,
+    immImm: y2_immImm,
+    immFin: y2_immFin,
+    pn: y2pn,
+    debLT: y2debLT,
+    materePrime: v('y2_materePrime'),
+    costiServizi: v('y2_costiServizi'),
+    ammortamenti: v('y2_ammortamenti'),
+    svalutazioni: v('y2_svalutazioni')
+  };
+
+  // Indici anno 1 estesi per commenti
+  const i1ext = {
+    roe: i1.roe,
+    roi: i1.roi,
+    ros: i1.ros,
+    ebitdaM: data1.ebitda/(data1.ricavi||1),
+    currentRatio: i1.currentRatio,
+    quickRatio: (data1.totalCirc-data1.rim)/(data1.debCT||1),
+    cashRatio: data1.liquidita/(data1.debCT||1),
+    autonomiaFin: data1.pn/(data1.totAttivo||1),
+    debt_equity: i1.debt_equity,
+    pfn_ebitda: data1.pfn/(data1.ebitda||1)
+  };
+  // Indici anno 2 estesi
+  const i2ext = {
+    roe: i2.roe, roi: i2.roi, ros: i2.ros,
+    currentRatio: i2.currentRatio, debt_equity: i2.debt_equity
+  };
+
+  renderRendiconto(data1, d2ForExtras);
+  renderCommenti(data1, d2ForExtras, null, i1ext, i2ext);
 }
 
 // ============================================================
@@ -1710,25 +2003,21 @@ function setY2Mode(mode) {
 // ANNO 2 — IMPORT EXCEL (stessa mappatura Anno 1, aggregata)
 // ============================================================
 const Y2_FIELD_MAP = {
-  avviamento:'y2_immImm', brevetti:'y2_immImm', costiSviluppo:'y2_immImm', altreImmImm:'y2_immImm',
-  terreni:'y2_immMat', impianti:'y2_immMat', attrezzature:'y2_immMat', altreImmMat:'y2_immMat',
-  partecipazioni:'y2_immFin', creditiFinLT:'y2_immFin', titoliImm:'y2_immFin',
-  rimanenze:'y2_rimanenze',
-  creditiComm:'y2_creditiComm',
-  cassa:'y2_cassa',
-  creditiTrib:'y2_altriAtt', attivFinCT:'y2_altriAtt', altriCrediti:'y2_altriAtt', rateiAttivi:'y2_altriAtt',
-  capitaleSociale:'y2_pn', riserve:'y2_pn', utileEsercizio:'y2_pn', altreRiserve:'y2_pn',
-  fondoTFR:'y2_fondi', altriFondi:'y2_fondi',
-  debitiBancariLT:'y2_debBancLT',
-  obbligazioni:'y2_debLT', debitiSociLT:'y2_debLT', altriDebitiLT:'y2_debLT',
-  debitiBancariCT:'y2_debBancCT',
-  debitiFornitori:'y2_debForn',
-  debitiTrib:'y2_debCT', debitiDip:'y2_debCT', altriDebitiCT:'y2_debCT', rateiPassivi:'y2_debCT',
-  ricavi:'y2_ricavi', varRimanenze:'y2_ricavi', altriRicavi:'y2_altriRicavi',
-  materePrime:'y2_materie', costiServizi:'y2_servizi', costiPersonale:'y2_personale',
-  ammortamenti:'y2_ammort', svalutazioni:'y2_ammort',
-  oneriFinanz:'y2_oneriFinanz',
-  imposte:'y2_imposte'
+  avviamento:'y2_avviamento', brevetti:'y2_brevetti', costiSviluppo:'y2_costiSviluppo', altreImmImm:'y2_altreImmImm',
+  terreni:'y2_terreni', impianti:'y2_impianti', attrezzature:'y2_attrezzature', altreImmMat:'y2_altreImmMat',
+  partecipazioni:'y2_partecipazioni', creditiFinLT:'y2_creditiFinLT', titoliImm:'y2_titoliImm',
+  rimanenze:'y2_rimanenze', creditiComm:'y2_creditiComm', creditiTrib:'y2_creditiTrib',
+  cassa:'y2_cassa', attivFinCT:'y2_attivFinCT', altriCrediti:'y2_altriCrediti', rateiAttivi:'y2_rateiAttivi',
+  capitaleSociale:'y2_capitaleSociale', riserve:'y2_riserve', utileEsercizio:'y2_utileEsercizio', altreRiserve:'y2_altreRiserve',
+  fondoTFR:'y2_fondoTFR', altriFondi:'y2_altriFondi',
+  debitiBancariLT:'y2_debitiBancariLT', obbligazioni:'y2_obbligazioni', debitiSociLT:'y2_debitiSociLT', altriDebitiLT:'y2_altriDebitiLT',
+  debitiBancariCT:'y2_debitiBancariCT', debitiFornitori:'y2_debitiFornitori',
+  debitiTrib:'y2_debitiTrib', debitiDip:'y2_debitiDip', altriDebitiCT:'y2_altriDebitiCT', rateiPassivi:'y2_rateiPassivi',
+  ricavi:'y2_ricavi', varRimanenze:'y2_varRimanenze', altriRicavi:'y2_altriRicavi',
+  materePrime:'y2_materePrime', costiServizi:'y2_costiServizi', costiPersonale:'y2_costiPersonale',
+  ammortamenti:'y2_ammortamenti', svalutazioni:'y2_svalutazioni', altriCostiOp:'y2_altriCostiOp',
+  proventiFinanz:'y2_proventiFinanz', oneriFinanz:'y2_oneriFinanz',
+  straordinari:'y2_straordinari', imposte:'y2_imposte'
 };
 
 function importExcelY2(event) {
@@ -1767,6 +2056,356 @@ function importExcelY2(event) {
 }
 
 // ============================================================
+// RENDICONTO FINANZIARIO (metodo indiretto)
+// ============================================================
+function renderRendiconto(d1, d2, y2data) {
+  const year1 = d1.year;
+  const year2 = document.getElementById('year2').value || '2023';
+
+  // FLUSSO DA GESTIONE OPERATIVA (metodo indiretto)
+  // Partendo dall'utile netto, aggiustiamo per poste non monetarie e variazioni CCN
+  const utileNetto1 = d1.utileNetto;
+  const ammSval1    = d1.ammortamenti + d1.svalutazioni;
+  const varCreditiComm = d2.creditiComm - d1.creditiComm; // aumento = assorbimento di cassa
+  const varRimanenze   = d2.rim - d1.rim;
+  const varDebForn     = d1.debFornitori - d2.debFornitori; // diminuzione passivo = assorbimento
+  const varAltriCC     = (d1.creditiTrib + d1.altriCrediti) - (d2.creditiComm - d1.creditiComm);
+  // Variazione CCN semplificata
+  const ccn1 = d1.totalCirc - d1.debCT;
+  const ccn2 = d2.circTot - d2.debCT;
+  const varCCN = ccn1 - ccn2; // aumento CCN = assorbimento
+
+  const flussoOperativo = utileNetto1 + ammSval1 - varCCN;
+
+  // FLUSSO DA ATTIVITÀ DI INVESTIMENTO
+  const varImmMat  = -(d1.immMat - d2.immMat + ammSval1);  // capex stimato
+  const varImmImm  = -(d1.immImm - d2.immImm);
+  const varImmFin  = -(d1.immFin - d2.immFin);
+  const flussoInvestimento = varImmMat + varImmImm + varImmFin;
+
+  // FLUSSO DA ATTIVITÀ FINANZIARIA
+  const varDebLT    = d1.debLT - d2.debLT;   // aumento debiti = fonte
+  const varDebBancCT= d1.debBancLT - d2.debBancLT;
+  const varPN_extra = (d1.pn - d1.utileNetto) - (d2.pn - d2.utileNetto); // variazione PN escluso utile
+  const flussoFinanziamento = -varDebLT + varPN_extra;
+
+  const varLiquidita = d1.cassa - d2.cassa;
+  const checkTotal   = flussoOperativo + flussoInvestimento + flussoFinanziamento;
+
+  function cfRow(label, val, indent=false) {
+    const cls = val > 0 ? 'cf-positive' : val < 0 ? 'cf-negative' : 'cf-neutral';
+    const sign = val > 0 ? '+' : '';
+    return `<tr>
+      <td class="td-label" style="${indent?'padding-left:32px;color:var(--text-muted);font-size:0.83rem':'font-weight:500'}">${label}</td>
+      <td class="td-num ${cls}">${sign}${fmt(val)}</td>
+    </tr>`;
+  }
+
+  function cfTotal(label, val) {
+    const cls = val >= 0 ? 'cf-positive' : 'cf-negative';
+    return `<tr class="cf-total-row">
+      <td style="padding:12px 16px; font-size:0.85rem; letter-spacing:0.04em;">${label}</td>
+      <td class="td-num ${cls}" style="padding:12px 16px; font-size:1rem;">${val>=0?'+':''}${fmt(val)}</td>
+    </tr>`;
+  }
+
+  function summaryCard(cls, icon, label, val) {
+    const numCls = val >= 0 ? 'cf-positive' : 'cf-negative';
+    return `<div class="cf-summary-card ${cls}">
+      <div class="cf-summary-label">${icon} ${label}</div>
+      <div class="cf-summary-value ${numCls}">${val>=0?'+':''}${fmt(val)}</div>
+    </div>`;
+  }
+
+  const html = `
+    <div class="cf-summary-bar">
+      ${summaryCard('op','💼','Gestione Operativa', flussoOperativo)}
+      ${summaryCard('inv','🏗️','Investimenti', flussoInvestimento)}
+      ${summaryCard('fin','🏦','Finanziamento', flussoFinanziamento)}
+      ${summaryCard('net','💧','Δ Liquidità Netta', varLiquidita)}
+    </div>
+
+    <div class="grid-2" style="gap:24px; align-items:start;">
+      <div>
+        <div class="card" style="margin-bottom:24px;">
+          <div class="card-header">
+            <div><h3>💼 Flusso da Gestione Operativa</h3><p>Capacità dell'attività core di generare cassa</p></div>
+            <div class="year-badge">📅 ${year1} vs ${year2}</div>
+          </div>
+          <table>
+            <thead><tr><th>Voce</th><th style="text-align:right">Importo</th></tr></thead>
+            <tbody>
+              ${cfRow('Utile Netto', utileNetto1)}
+              ${cfRow('(+) Ammortamenti & Svalutazioni', ammSval1, true)}
+              ${cfRow('(±) Variazione Capitale Circolante Netto', -varCCN, true)}
+              ${cfRow('&nbsp;&nbsp;di cui Δ Crediti Commerciali', -varCreditiComm, true)}
+              ${cfRow('&nbsp;&nbsp;di cui Δ Rimanenze', -varRimanenze, true)}
+              ${cfTotal('= Flusso Gestione Operativa', flussoOperativo)}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div><h3>🏗️ Flusso da Attività di Investimento</h3><p>Acquisizioni e dismissioni di asset</p></div></div>
+          <table>
+            <thead><tr><th>Voce</th><th style="text-align:right">Importo</th></tr></thead>
+            <tbody>
+              ${cfRow('Δ Immobilizzazioni Materiali (netto amm.)', varImmMat)}
+              ${cfRow('Δ Immobilizzazioni Immateriali', varImmImm, true)}
+              ${cfRow('Δ Immobilizzazioni Finanziarie', varImmFin, true)}
+              ${cfTotal('= Flusso Investimenti', flussoInvestimento)}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div>
+        <div class="card" style="margin-bottom:24px;">
+          <div class="card-header"><div><h3>🏦 Flusso da Attività Finanziaria</h3><p>Variazioni del debito e del patrimonio</p></div></div>
+          <table>
+            <thead><tr><th>Voce</th><th style="text-align:right">Importo</th></tr></thead>
+            <tbody>
+              ${cfRow('Δ Debiti Finanziari M/L Termine', -varDebLT)}
+              ${cfRow('Δ Patrimonio Netto (escl. utile)', varPN_extra, true)}
+              ${cfTotal('= Flusso Finanziamento', flussoFinanziamento)}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card" style="margin-bottom:24px;">
+          <div class="card-header"><div><h3>💧 Riconciliazione Liquidità</h3><p>Verifica della coerenza dei flussi</p></div></div>
+          <table>
+            <thead><tr><th>Voce</th><th style="text-align:right">Importo</th></tr></thead>
+            <tbody>
+              ${cfRow(`Liquidità iniziale (${year2})`, d2.cassa)}
+              ${cfRow('(+) Flusso Operativo', flussoOperativo, true)}
+              ${cfRow('(+) Flusso Investimenti', flussoInvestimento, true)}
+              ${cfRow('(+) Flusso Finanziario', flussoFinanziamento, true)}
+              ${cfTotal(`= Liquidità Finale (${year1})`, d2.cassa + checkTotal)}
+              <tr><td style="padding:8px 16px; font-size:0.78rem; color:var(--text-muted);" colspan="2">Liquidità effettiva ${year1}: ${fmt(d1.cassa)} — Scarto: ${fmt(d1.cassa - (d2.cassa + checkTotal))}</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div><h3>📊 Indici di Cash Flow</h3></div></div>
+          <table>
+            <thead><tr><th>Indice</th><th style="text-align:right">Valore</th></tr></thead>
+            <tbody>
+              <tr><td class="td-label">Cash Flow Operativo / Ricavi</td><td class="td-num ${flussoOperativo/d1.ricavi>=0.05?'cf-positive':'cf-negative'}">${(flussoOperativo/d1.ricavi*100).toFixed(1)}%</td></tr>
+              <tr><td class="td-label">Cash Flow Operativo / EBITDA</td><td class="td-num">${d1.ebitda?fmtRatio(flussoOperativo/d1.ebitda)+'×':'n.d.'}</td></tr>
+              <tr><td class="td-label">Cash Flow Operativo / Debiti C/T</td><td class="td-num ${flussoOperativo/d1.debCT>=0.2?'cf-positive':'cf-negative'}">${d1.debCT?fmtRatio(flussoOperativo/d1.debCT)+'×':'n.d.'}</td></tr>
+              <tr><td class="td-label">Free Cash Flow (Op. + Inv.)</td><td class="td-num ${(flussoOperativo+flussoInvestimento)>=0?'cf-positive':'cf-negative'}">${fmt(flussoOperativo+flussoInvestimento)}</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="comment-box" style="margin-top:24px;">
+      <h5>🔍 Interpretazione del Rendiconto Finanziario</h5>
+      <p>${generateCFComment(flussoOperativo, flussoInvestimento, flussoFinanziamento, varLiquidita, d1)}</p>
+    </div>
+  `;
+
+  document.getElementById('rendiconto-content').innerHTML = html;
+}
+
+function generateCFComment(opCF, invCF, finCF, varLiq, d) {
+  const parts = [];
+
+  // Flusso operativo
+  if(opCF > 0) {
+    const ratio = opCF / d.ebitda;
+    if(ratio > 0.7) parts.push(`La <strong>gestione operativa genera cassa in modo solido</strong> (${fmt(opCF)}), con un conversion rate EBITDA→cash del ${(ratio*100).toFixed(0)}%, indicando un buon controllo del capitale circolante.`);
+    else parts.push(`La gestione operativa produce ${fmt(opCF)} di cassa, ma il conversion rate sull'EBITDA (${(ratio*100).toFixed(0)}%) suggerisce che <strong>parte dei margini contabili non si è ancora convertita in liquidità</strong> — verificare l'andamento dei crediti commerciali.`);
+  } else {
+    parts.push(`⚠️ <strong>Il flusso operativo è negativo (${fmt(opCF)})</strong>: l'azienda ha consumato cassa nella gestione corrente. È necessaria un'analisi approfondita del capitale circolante.`);
+  }
+
+  // Flusso di investimento
+  if(invCF < 0) {
+    parts.push(`L'area degli investimenti ha assorbito ${fmt(Math.abs(invCF))}, segnalando una <strong>fase di sviluppo o rinnovo degli asset</strong>. È importante che questi investimenti generino ritorni adeguati nel medio termine.`);
+  } else if(invCF > 0) {
+    parts.push(`Il flusso degli investimenti è <strong>positivo (${fmt(invCF)})</strong>: l'azienda ha dismesso più asset di quanti ne abbia acquisiti — possibile segnale di razionalizzazione del portafoglio o di disinvestimento selettivo.`);
+  }
+
+  // Flusso finanziario
+  if(finCF > 0) parts.push(`Sul fronte finanziario, l'azienda ha <strong>raccolto risorse (${fmt(finCF)})</strong> — attraverso nuovo debito o apporti di capitale — per sostenere il fabbisogno complessivo.`);
+  else if(finCF < 0) parts.push(`L'azienda ha <strong>rimborsato debiti o distribuito dividendi (${fmt(Math.abs(finCF))})</strong> nell'area finanziaria, riducendo l'indebitamento netto.`);
+
+  // Liquidità netta
+  if(varLiq > 0) parts.push(`Il saldo finale mostra un <strong>incremento della liquidità di ${fmt(varLiq)}</strong>: posizione di cassa rafforzata rispetto all'anno precedente.`);
+  else parts.push(`La liquidità si è <strong>ridotta di ${fmt(Math.abs(varLiq))}</strong> nel periodo: è opportuno monitorare la gestione del circolante e verificare la sostenibilità dei flussi futuri.`);
+
+  return parts.join(' ');
+}
+
+// ============================================================
+// COMMENTI & DIAGNOSI STRATEGICA
+// ============================================================
+function renderCommenti(d1, d2, y2data, i1, i2) {
+  const year1 = d1.year;
+  const year2 = document.getElementById('year2').value || '2023';
+
+  // Calcola score sintetico su 100
+  let score = 0;
+  const maxScore = 100;
+  // Redditività (max 30)
+  if(i1.roe > 0.12) score += 10; else if(i1.roe > 0.05) score += 6; else if(i1.roe > 0) score += 2;
+  if(i1.roi > 0.08) score += 10; else if(i1.roi > 0.03) score += 5; else if(i1.roi > 0) score += 2;
+  if(i1.ebitdaM > 0.15) score += 10; else if(i1.ebitdaM > 0.05) score += 5; else if(i1.ebitdaM > 0) score += 2;
+  // Liquidità (max 25)
+  if(i1.currentRatio > 1.5) score += 12; else if(i1.currentRatio > 1) score += 7; else score += 0;
+  if(i1.quickRatio > 1) score += 8; else if(i1.quickRatio > 0.7) score += 4;
+  if(i1.cashRatio > 0.2) score += 5; else if(i1.cashRatio > 0.1) score += 2;
+  // Struttura (max 25)
+  if(i1.autonomiaFin > 0.4) score += 10; else if(i1.autonomiaFin > 0.25) score += 5;
+  if(i1.debt_equity < 1) score += 8; else if(i1.debt_equity < 2.5) score += 4;
+  if(i1.pfn_ebitda < 3) score += 7; else if(i1.pfn_ebitda < 6) score += 3;
+  // Trend (max 20)
+  if(d1.ricavi > d2.ricaviTot) score += 5;
+  if(d1.ebitda > d2.ebitda) score += 5;
+  if(d1.utileNetto > d2.utileNetto) score += 5;
+  if(i1.debt_equity < i2.debt_equity) score += 5;
+
+  const grade = score >= 80 ? 'A' : score >= 60 ? 'B' : score >= 40 ? 'C' : 'D';
+  const gradeLabel = {A:'Eccellente',B:'Buono',C:'Sufficiente',D:'Critico'}[grade];
+  const gradeColor = {A:'var(--green)',B:'var(--green-light)',C:'var(--amber)',D:'var(--red-light)'}[grade];
+
+  // Trend helper
+  function trend(v1, v2, higher=true) {
+    const better = higher ? v1 > v2 : v1 < v2;
+    const pct = v2 !== 0 ? ((v1-v2)/Math.abs(v2)*100).toFixed(1) : '—';
+    if(v1 === v2) return `<span class="trend-arrow trend-flat">→ stabile</span>`;
+    return better
+      ? `<span class="trend-arrow trend-up">▲ +${pct}%</span>`
+      : `<span class="trend-arrow trend-down">▼ ${pct}%</span>`;
+  }
+
+  function diagCard(type, icon, title, content) {
+    return `<div class="diagnosis-card ${type}">
+      <div class="diagnosis-icon">${icon}</div>
+      <div class="diagnosis-title">${title}</div>
+      <div class="diagnosis-text">${content}</div>
+    </div>`;
+  }
+
+  // Genera commenti contestuali
+  const cards = [];
+
+  // 1. Redditività
+  const redTrend = d1.ebitda > d2.ebitda;
+  cards.push(diagCard(
+    i1.roe > 0.08 ? 'positive' : i1.roe > 0 ? 'warning' : 'critical',
+    '📈',
+    `Redditività — ROE ${(i1.roe*100).toFixed(1)}% ${trend(i1.roe, i2.roe)}`,
+    `Il <strong>ROE del ${(i1.roe*100).toFixed(1)}%</strong> (vs ${(i2.roe*100).toFixed(1)}% dell'anno precedente) ` +
+    (i1.roe > i2.roe ? `evidenzia un <strong>miglioramento della redditività del capitale proprio</strong>.` : `riflette una <strong>contrazione della redditività</strong> da monitorare.`) +
+    ` L'EBITDA Margin è del <strong>${(i1.ebitdaM*100).toFixed(1)}%</strong> ${trend(i1.ebitdaM, i2.ebitdaM || d2.ebitda/d2.ricaviTot)}: ` +
+    (i1.ebitdaM > 0.15 ? `un livello eccellente che indica solida capacità di generazione di margine operativo.`
+    : i1.ebitdaM > 0.05 ? `un livello discreto, con spazio di miglioramento sull'efficienza dei costi.`
+    : `un livello critico — l'azienda deve urgentemente intervenire sulla struttura dei costi.`)
+  ));
+
+  // 2. Liquidità
+  cards.push(diagCard(
+    i1.currentRatio > 1.5 ? 'positive' : i1.currentRatio > 1 ? 'warning' : 'critical',
+    '💧',
+    `Liquidità — Current Ratio ${fmtRatio(i1.currentRatio)}× ${trend(i1.currentRatio, i2.currentRatio)}`,
+    `Il Current Ratio di <strong>${fmtRatio(i1.currentRatio)}×</strong> ` +
+    (i1.currentRatio > 1.5 ? `garantisce una <strong>copertura ampia dei debiti a breve</strong>: l'azienda è in grado di far fronte alle obbligazioni correnti con margine di sicurezza.`
+    : i1.currentRatio > 1 ? `è <strong>sufficiente ma non privo di rischi</strong>: qualsiasi tensione sul capitale circolante potrebbe creare difficoltà nel servire i debiti a breve.`
+    : `è <strong>inferiore a 1 — situazione critica</strong>: i debiti correnti superano l'attivo corrente, segnalando un potenziale rischio di insolvenza nel breve termine.`) +
+    ` Il Quick Ratio (${fmtRatio(i1.quickRatio)}×) ` +
+    (i1.quickRatio > 1 ? `conferma la solidità anche escludendo le rimanenze.` : `segnala una dipendenza dalle scorte per la copertura del passivo corrente.`)
+  ));
+
+  // 3. Struttura finanziaria
+  cards.push(diagCard(
+    i1.debt_equity < 1 ? 'positive' : i1.debt_equity < 2.5 ? 'warning' : 'critical',
+    '🏛️',
+    `Struttura Patrimoniale — D/E ${fmtRatio(i1.debt_equity)}× ${trend(i1.debt_equity, i2.debt_equity, false)}`,
+    `Il rapporto Debiti/Patrimonio Netto è <strong>${fmtRatio(i1.debt_equity)}×</strong> ` +
+    (i1.debt_equity < 1 ? `— una struttura <strong>finanziariamente solida</strong>, con prevalenza del capitale proprio sul debito terzi.`
+    : i1.debt_equity < 2.5 ? `— un livello <strong>moderato di leva finanziaria</strong>, accettabile ma da monitorare soprattutto in contesti di rialzo dei tassi.`
+    : `— un livello <strong>elevato che espone l'azienda a rischi finanziari significativi</strong>. È raccomandata una strategia di riduzione del debito.`) +
+    ` L'Indice di Autonomia Finanziaria è del <strong>${(i1.autonomiaFin*100).toFixed(1)}%</strong>` +
+    (i1.autonomiaFin > 0.4 ? `, ampiamente sopra la soglia minima del 25–40%.` : `, al di sotto delle soglie di sicurezza ottimali.`)
+  ));
+
+  // 4. Trend dei ricavi
+  const ricaviGrowth = d2.ricaviTot > 0 ? (d1.ricavi - d2.ricaviTot) / d2.ricaviTot : 0;
+  cards.push(diagCard(
+    ricaviGrowth > 0.05 ? 'positive' : ricaviGrowth > 0 ? 'neutral' : 'warning',
+    '🚀',
+    `Crescita — Ricavi ${trend(d1.ricavi, d2.ricaviTot)}`,
+    `I ricavi passano da <strong>${fmt(d2.ricaviTot)}</strong> (${year2}) a <strong>${fmt(d1.ricavi)}</strong> (${year1}), ` +
+    (ricaviGrowth > 0.1 ? `con una <strong>crescita robusta del +${(ricaviGrowth*100).toFixed(1)}%</strong> che segnala forte trazione commerciale.`
+    : ricaviGrowth > 0 ? `con un <strong>incremento contenuto del +${(ricaviGrowth*100).toFixed(1)}%</strong>. La crescita c'è ma occorre accelerare.`
+    : `con una <strong>contrazione del ${(ricaviGrowth*100).toFixed(1)}%</strong>. È prioritario identificare le cause del calo e intervenire sulla strategia commerciale.`) +
+    ` L'EBIT ${d1.ebit > d2.ebit ? 'è migliorato' : 'si è ridotto'} ${trend(d1.ebit, d2.ebit)}, passando da ${fmt(d2.ebit)} a ${fmt(d1.ebit)}.`
+  ));
+
+  // 5. Ciclo del capitale circolante
+  const dso1 = d1.creditiComm / (d1.ricavi/365||1);
+  const dso2 = d2.creditiComm / (d2.ricaviTot/365||1);
+  const dpo1 = d1.debFornitori / ((d1.materePrime+d1.costiServizi)/365||1);
+  const dio1 = d1.rim / ((d1.materePrime+d1.costiServizi)/365||1);
+  const ccc1 = dso1 + dio1 - dpo1;
+  cards.push(diagCard(
+    ccc1 < 60 ? 'positive' : ccc1 < 100 ? 'warning' : 'critical',
+    '🔄',
+    `Efficienza Operativa — Ciclo CCN: ${ccc1.toFixed(0)} giorni`,
+    `Il ciclo del capitale circolante netto è di <strong>${ccc1.toFixed(0)} giorni</strong>: ` +
+    `i crediti clienti si incassano mediamente in <strong>${dso1.toFixed(0)} gg</strong> ${trend(dso1, dso2, false)}, ` +
+    `le scorte rimangono a magazzino per <strong>${dio1.toFixed(0)} gg</strong>, ` +
+    `e i fornitori vengono pagati dopo <strong>${dpo1.toFixed(0)} gg</strong>. ` +
+    (ccc1 < 60 ? `Un ciclo efficiente che riduce il fabbisogno finanziario del circolante.`
+    : ccc1 < 100 ? `Un ciclo nella media, con possibile ottimizzazione sui tempi di incasso o sui pagamenti fornitori.`
+    : `⚠️ Un ciclo lungo che richiede <strong>significativo capitale circolante</strong> — intervenire sulle politiche di credito clienti e gestione scorte.`)
+  ));
+
+  // 6. Sintesi strategica
+  const sintesi = `
+    <div class="card" style="margin-bottom:20px;">
+      <div class="card-header"><h3>📋 Raccomandazioni Strategiche</h3></div>
+      <div class="card-body">
+        <table>
+          <thead><tr><th>Area</th><th style="text-align:center">Anno ${year1}</th><th style="text-align:center">Anno ${year2}</th><th style="text-align:center">Trend</th><th>Priorità</th></tr></thead>
+          <tbody>
+            <tr><td class="td-label">ROE</td><td class="td-num">${(i1.roe*100).toFixed(1)}%</td><td class="td-num">${(i2.roe*100).toFixed(1)}%</td><td style="text-align:center">${trend(i1.roe,i2.roe)}</td><td><span class="badge ${i1.roe>0.08?'badge-green':i1.roe>0?'badge-amber':'badge-red'}">${i1.roe>0.08?'Ottima':'Da migliorare'}</span></td></tr>
+            <tr><td class="td-label">EBITDA Margin</td><td class="td-num">${(i1.ebitdaM*100).toFixed(1)}%</td><td class="td-num">${((d2.ebitda/d2.ricaviTot||0)*100).toFixed(1)}%</td><td style="text-align:center">${trend(i1.ebitdaM, d2.ebitda/d2.ricaviTot||0)}</td><td><span class="badge ${i1.ebitdaM>0.15?'badge-green':i1.ebitdaM>0.05?'badge-amber':'badge-red'}">${i1.ebitdaM>0.15?'Ottima':i1.ebitdaM>0.05?'Monitorare':'Urgente'}</span></td></tr>
+            <tr><td class="td-label">Current Ratio</td><td class="td-num">${fmtRatio(i1.currentRatio)}×</td><td class="td-num">${fmtRatio(i2.currentRatio)}×</td><td style="text-align:center">${trend(i1.currentRatio,i2.currentRatio)}</td><td><span class="badge ${i1.currentRatio>1.5?'badge-green':i1.currentRatio>1?'badge-amber':'badge-red'}">${i1.currentRatio>1.5?'Buona':i1.currentRatio>1?'Attenzione':'Critica'}</span></td></tr>
+            <tr><td class="td-label">Debt / Equity</td><td class="td-num">${fmtRatio(i1.debt_equity)}×</td><td class="td-num">${fmtRatio(i2.debt_equity)}×</td><td style="text-align:center">${trend(i1.debt_equity,i2.debt_equity,false)}</td><td><span class="badge ${i1.debt_equity<1?'badge-green':i1.debt_equity<2.5?'badge-amber':'badge-red'}">${i1.debt_equity<1?'Basso':i1.debt_equity<2.5?'Moderato':'Elevato'}</span></td></tr>
+            <tr><td class="td-label">Crescita Ricavi</td><td class="td-num">${fmt(d1.ricavi)}</td><td class="td-num">${fmt(d2.ricaviTot)}</td><td style="text-align:center">${trend(d1.ricavi,d2.ricaviTot)}</td><td><span class="badge ${ricaviGrowth>0.05?'badge-green':ricaviGrowth>=0?'badge-amber':'badge-red'}">${ricaviGrowth>0.05?'Positiva':ricaviGrowth>=0?'Stabile':'Negativa'}</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+
+  const html = `
+    <div class="score-meter">
+      <div class="score-circle ${grade}">
+        <span class="score-num">${score}</span>
+        <span class="score-max">/100</span>
+      </div>
+      <div>
+        <div style="font-family:'Playfair Display',serif; font-size:1.2rem; font-weight:700; color:var(--navy);">Rating Finanziario: <span style="color:${gradeColor}">${grade} — ${gradeLabel}</span></div>
+        <div style="font-size:0.85rem; color:var(--text-muted); margin-top:4px;">Valutazione sintetica basata su redditività, liquidità, struttura patrimoniale e trend biennale. Anno di riferimento: <strong>${year1}</strong> vs <strong>${year2}</strong>.</div>
+      </div>
+    </div>
+
+    ${sintesi}
+
+    <h3 style="font-family:'Playfair Display',serif; font-size:1.15rem; color:var(--navy); margin-bottom:16px;">🔎 Analisi per Area</h3>
+    ${cards.join('')}
+  `;
+
+  document.getElementById('commenti-content').innerHTML = html;
+}
+
+// ============================================================
 // EXPORT PDF  (apre finestra di stampa ottimizzata)
 // ============================================================
 function exportPDF() {
@@ -1795,19 +2434,29 @@ function exportPDF() {
          : '<span style="color:#9b2226;font-weight:bold">✗ Critico</span>';
   }
 
-  // Dati Anno 2 se disponibili
-  const y2r = (parseFloat(document.getElementById('y2_ricavi').value)||0)+(parseFloat(document.getElementById('y2_altriRicavi').value)||0);
-  const y2mat = parseFloat(document.getElementById('y2_materie').value)||0;
-  const y2serv = parseFloat(document.getElementById('y2_servizi').value)||0;
-  const y2pers = parseFloat(document.getElementById('y2_personale').value)||0;
-  const y2amm  = parseFloat(document.getElementById('y2_ammort').value)||0;
+  // Dati Anno 2 se disponibili — stessa logica di elaboraConfronto
+  const y2r    = (parseFloat(document.getElementById('y2_ricavi').value)||0)
+               + (parseFloat(document.getElementById('y2_varRimanenze').value)||0)
+               + (parseFloat(document.getElementById('y2_altriRicavi').value)||0);
+  const y2mat  = parseFloat(document.getElementById('y2_materePrime').value)||0;
+  const y2serv = parseFloat(document.getElementById('y2_costiServizi').value)||0;
+  const y2pers = parseFloat(document.getElementById('y2_costiPersonale').value)||0;
+  const y2acop = parseFloat(document.getElementById('y2_altriCostiOp').value)||0;
+  const y2amm  = (parseFloat(document.getElementById('y2_ammortamenti').value)||0)
+               + (parseFloat(document.getElementById('y2_svalutazioni').value)||0);
   const y2oneri= parseFloat(document.getElementById('y2_oneriFinanz').value)||0;
+  const y2prov = parseFloat(document.getElementById('y2_proventiFinanz').value)||0;
+  const y2str  = parseFloat(document.getElementById('y2_straordinari').value)||0;
   const y2imp  = parseFloat(document.getElementById('y2_imposte').value)||0;
-  const y2ebitda= y2r - y2mat - y2serv - y2pers;
-  const y2ebit  = y2ebitda - y2amm;
-  const y2utile = y2ebit - y2oneri - y2imp;
-  const y2att   = (parseFloat(document.getElementById('y2_immImm').value)||0)+(parseFloat(document.getElementById('y2_immMat').value)||0)+(parseFloat(document.getElementById('y2_immFin').value)||0)+(parseFloat(document.getElementById('y2_rimanenze').value)||0)+(parseFloat(document.getElementById('y2_creditiComm').value)||0)+(parseFloat(document.getElementById('y2_cassa').value)||0)+(parseFloat(document.getElementById('y2_altriAtt').value)||0);
-  const y2pn    = parseFloat(document.getElementById('y2_pn').value)||0;
+  const y2ebitda = y2r - y2mat - y2serv - y2pers - y2acop;
+  const y2ebit   = y2ebitda - y2amm;
+  const y2utile  = y2ebit + y2prov - y2oneri + y2str - y2imp;
+  const y2immImm = (parseFloat(document.getElementById('y2_avviamento').value)||0)+(parseFloat(document.getElementById('y2_brevetti').value)||0)+(parseFloat(document.getElementById('y2_costiSviluppo').value)||0)+(parseFloat(document.getElementById('y2_altreImmImm').value)||0);
+  const y2immMat = (parseFloat(document.getElementById('y2_terreni').value)||0)+(parseFloat(document.getElementById('y2_impianti').value)||0)+(parseFloat(document.getElementById('y2_attrezzature').value)||0)+(parseFloat(document.getElementById('y2_altreImmMat').value)||0);
+  const y2immFin = (parseFloat(document.getElementById('y2_partecipazioni').value)||0)+(parseFloat(document.getElementById('y2_creditiFinLT').value)||0)+(parseFloat(document.getElementById('y2_titoliImm').value)||0);
+  const y2circ   = (parseFloat(document.getElementById('y2_rimanenze').value)||0)+(parseFloat(document.getElementById('y2_creditiComm').value)||0)+(parseFloat(document.getElementById('y2_creditiTrib').value)||0)+(parseFloat(document.getElementById('y2_cassa').value)||0)+(parseFloat(document.getElementById('y2_attivFinCT').value)||0)+(parseFloat(document.getElementById('y2_altriCrediti').value)||0)+(parseFloat(document.getElementById('y2_rateiAttivi').value)||0);
+  const y2att    = y2immImm + y2immMat + y2immFin + y2circ;
+  const y2pn     = (parseFloat(document.getElementById('y2_capitaleSociale').value)||0)+(parseFloat(document.getElementById('y2_riserve').value)||0)+(parseFloat(document.getElementById('y2_utileEsercizio').value)||0)+(parseFloat(document.getElementById('y2_altreRiserve').value)||0);
   const year2   = document.getElementById('year2').value||'Anno 2';
   const hasY2   = y2r > 0 || y2att > 0;
 
