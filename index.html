@@ -656,7 +656,8 @@
   </div>
   <div class="header-actions">
     <button class="btn btn-outline btn-sm" onclick="showTemplate()">📄 Fac-simile Excel</button>
-    <button class="btn btn-gold btn-sm" onclick="window.print()">🖨️ Stampa Report</button>
+    <button class="btn btn-outline btn-sm" onclick="window.print()">🖨️ Stampa</button>
+    <button class="btn btn-gold btn-sm" onclick="exportPDF()">⬇️ Esporta PDF</button>
   </div>
 </header>
 
@@ -902,9 +903,25 @@
           <label style="display:inline; text-transform:none; font-size:0.85rem;">Anno 2:</label>
           <input type="text" id="year2" value="2023" style="width:90px;" placeholder="Anno 2">
         </div>
+        <div class="toggle-group" style="margin-left:auto;">
+          <button class="toggle-btn active" id="toggle-y2-manual" onclick="setY2Mode('manual')">✏️ Manuale</button>
+          <button class="toggle-btn" id="toggle-y2-excel" onclick="setY2Mode('excel')">📥 Importa Excel</button>
+        </div>
       </div>
 
-      <!-- Year 2 quick inputs - simplified -->
+      <!-- Anno 2: Import Excel -->
+      <div id="y2-excel-section" style="display:none; margin-bottom:20px;">
+        <div class="upload-zone" onclick="document.getElementById('excelFileY2').click()">
+          <div class="upload-icon">📂</div>
+          <h4>Trascina qui il file Excel dell'Anno 2 o clicca per selezionarlo</h4>
+          <p>Stessa struttura del fac-simile Anno 1 — <span style="color:var(--gold); cursor:pointer;" onclick="event.stopPropagation(); showTemplate()">Scarica il fac-simile</span></p>
+        </div>
+        <input type="file" id="excelFileY2" accept=".xlsx,.xls" style="display:none;" onchange="importExcelY2(event)">
+        <div id="import-alert-y2" style="margin-top:12px;"></div>
+      </div>
+
+      <!-- Anno 2: Manuale -->
+      <div id="y2-manual-section">
       <div class="grid-3">
         <div>
           <div class="sep">Stato Patrimoniale Attivo</div>
@@ -938,6 +955,8 @@
           <div class="form-group"><label>Imposte</label><input type="number" id="y2_imposte" placeholder="0"></div>
         </div>
       </div>
+      </div><!-- /y2-manual-section -->
+
       <div style="margin-top:16px; display:flex; justify-content:flex-end;">
         <button class="btn btn-gold" onclick="elaboraConfronto()">⚡ Genera Confronto →</button>
       </div>
@@ -1678,7 +1697,275 @@ function elaboraConfronto() {
 }
 
 // ============================================================
-// EXCEL IMPORT
+// ANNO 2 — TOGGLE MANUALE / EXCEL
+// ============================================================
+function setY2Mode(mode) {
+  document.getElementById('toggle-y2-manual').classList.toggle('active', mode === 'manual');
+  document.getElementById('toggle-y2-excel').classList.toggle('active', mode === 'excel');
+  document.getElementById('y2-manual-section').style.display = mode === 'manual' ? 'block' : 'none';
+  document.getElementById('y2-excel-section').style.display = mode === 'excel' ? 'block' : 'none';
+}
+
+// ============================================================
+// ANNO 2 — IMPORT EXCEL (stessa mappatura Anno 1, aggregata)
+// ============================================================
+const Y2_FIELD_MAP = {
+  avviamento:'y2_immImm', brevetti:'y2_immImm', costiSviluppo:'y2_immImm', altreImmImm:'y2_immImm',
+  terreni:'y2_immMat', impianti:'y2_immMat', attrezzature:'y2_immMat', altreImmMat:'y2_immMat',
+  partecipazioni:'y2_immFin', creditiFinLT:'y2_immFin', titoliImm:'y2_immFin',
+  rimanenze:'y2_rimanenze',
+  creditiComm:'y2_creditiComm',
+  cassa:'y2_cassa',
+  creditiTrib:'y2_altriAtt', attivFinCT:'y2_altriAtt', altriCrediti:'y2_altriAtt', rateiAttivi:'y2_altriAtt',
+  capitaleSociale:'y2_pn', riserve:'y2_pn', utileEsercizio:'y2_pn', altreRiserve:'y2_pn',
+  fondoTFR:'y2_fondi', altriFondi:'y2_fondi',
+  debitiBancariLT:'y2_debBancLT',
+  obbligazioni:'y2_debLT', debitiSociLT:'y2_debLT', altriDebitiLT:'y2_debLT',
+  debitiBancariCT:'y2_debBancCT',
+  debitiFornitori:'y2_debForn',
+  debitiTrib:'y2_debCT', debitiDip:'y2_debCT', altriDebitiCT:'y2_debCT', rateiPassivi:'y2_debCT',
+  ricavi:'y2_ricavi', varRimanenze:'y2_ricavi', altriRicavi:'y2_altriRicavi',
+  materePrime:'y2_materie', costiServizi:'y2_servizi', costiPersonale:'y2_personale',
+  ammortamenti:'y2_ammort', svalutazioni:'y2_ammort',
+  oneriFinanz:'y2_oneriFinanz',
+  imposte:'y2_imposte'
+};
+
+function importExcelY2(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const wb = XLSX.read(e.target.result, {type:'binary'});
+      const ws = wb.Sheets['Bilancio'] || wb.Sheets[wb.SheetNames[0]];
+      const data = XLSX.utils.sheet_to_json(ws, {header:1});
+      // Azzera i campi aggregati prima di sommare
+      const targets = new Set(Object.values(Y2_FIELD_MAP));
+      targets.forEach(id => { const el = document.getElementById(id); if(el) el.value = 0; });
+      let mapped = 0;
+      data.forEach(row => {
+        if (row[0] && row[1] !== undefined) {
+          const field = String(row[0]).trim();
+          const val = parseFloat(row[1]) || 0;
+          const targetId = Y2_FIELD_MAP[field];
+          if (targetId) {
+            const el = document.getElementById(targetId);
+            if (el) { el.value = (parseFloat(el.value) || 0) + val; mapped++; }
+          }
+        }
+      });
+      setY2Mode('manual');
+      document.getElementById('import-alert-y2').innerHTML =
+        `<div class="alert alert-success">✅ Importati ${mapped} campi da "${file.name}". Verifica i dati e clicca "Genera Confronto".</div>`;
+    } catch(err) {
+      document.getElementById('import-alert-y2').innerHTML =
+        `<div class="alert alert-error">❌ Errore: ${err.message}</div>`;
+    }
+  };
+  reader.readAsBinaryString(file);
+}
+
+// ============================================================
+// EXPORT PDF  (apre finestra di stampa ottimizzata)
+// ============================================================
+function exportPDF() {
+  if (!data1) {
+    alert('Elabora prima i dati del primo anno: inserisci i dati e clicca "Elabora Analisi".');
+    return;
+  }
+  const d = data1;
+  const pfn = d.debLT + d.debCT - d.cassa - (d.attivFinCT||0);
+  const currentRatio = d.totalCirc / (d.debCT||1);
+  const quickRatio   = (d.totalCirc - d.rim) / (d.debCT||1);
+  const roe          = d.utileNetto / (d.pn||1);
+  const roi          = d.ebit / (d.totAttivo||1);
+  const ros          = d.ebit / (d.ricavi||1);
+  const deRatio      = (d.debLT+d.debCT) / (d.pn||1);
+  const pfnEbitda    = pfn / (d.ebitda||1);
+  const intCover     = d.ebit / (d.oneriFinanz||1);
+  const ebitdaMargin = d.ebitda / (d.ricavi||1);
+
+  function p(v) { return (v*100).toFixed(2)+'%'; }
+  function r(v) { return isFinite(v)&&!isNaN(v)?v.toFixed(2)+'×':'n.d.'; }
+  function f(n) { return '€ '+n.toLocaleString('it-IT',{minimumFractionDigits:0,maximumFractionDigits:0}); }
+  function bk(ok,warn) {
+    return ok ? '<span style="color:#2d6a4f;font-weight:bold">✓ Ottimo</span>'
+         : warn ? '<span style="color:#9d6b09;font-weight:bold">△ Discreto</span>'
+         : '<span style="color:#9b2226;font-weight:bold">✗ Critico</span>';
+  }
+
+  // Dati Anno 2 se disponibili
+  const y2r = (parseFloat(document.getElementById('y2_ricavi').value)||0)+(parseFloat(document.getElementById('y2_altriRicavi').value)||0);
+  const y2mat = parseFloat(document.getElementById('y2_materie').value)||0;
+  const y2serv = parseFloat(document.getElementById('y2_servizi').value)||0;
+  const y2pers = parseFloat(document.getElementById('y2_personale').value)||0;
+  const y2amm  = parseFloat(document.getElementById('y2_ammort').value)||0;
+  const y2oneri= parseFloat(document.getElementById('y2_oneriFinanz').value)||0;
+  const y2imp  = parseFloat(document.getElementById('y2_imposte').value)||0;
+  const y2ebitda= y2r - y2mat - y2serv - y2pers;
+  const y2ebit  = y2ebitda - y2amm;
+  const y2utile = y2ebit - y2oneri - y2imp;
+  const y2att   = (parseFloat(document.getElementById('y2_immImm').value)||0)+(parseFloat(document.getElementById('y2_immMat').value)||0)+(parseFloat(document.getElementById('y2_immFin').value)||0)+(parseFloat(document.getElementById('y2_rimanenze').value)||0)+(parseFloat(document.getElementById('y2_creditiComm').value)||0)+(parseFloat(document.getElementById('y2_cassa').value)||0)+(parseFloat(document.getElementById('y2_altriAtt').value)||0);
+  const y2pn    = parseFloat(document.getElementById('y2_pn').value)||0;
+  const year2   = document.getElementById('year2').value||'Anno 2';
+  const hasY2   = y2r > 0 || y2att > 0;
+
+  function dRow(label, v1, v2) {
+    const delta=v1-v2, pct2=v2!==0?(delta/Math.abs(v2)*100).toFixed(1)+'%':'—';
+    const col=delta>=0?'#2d6a4f':'#9b2226';
+    return `<tr><td>${label}</td><td style="text-align:right">${f(v1)}</td><td style="text-align:right">${f(v2)}</td><td style="text-align:right;color:${col};font-weight:bold">${delta>=0?'+':''}${f(delta)}</td><td style="text-align:right;color:${col}">${v2!==0?(delta>=0?'+':'')+pct2:'—'}</td></tr>`;
+  }
+
+  const confrontoHtml = hasY2 ? `
+    <div style="page-break-before:always"></div>
+    <h2 style="background:#0a1628;color:#c9a84c;padding:8px 12px;margin:20px 0 10px;border-left:4px solid #c9a84c">5. Confronto ${d.year} vs ${year2}</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:9pt">
+      <thead><tr style="background:#0a1628"><th style="color:#c9a84c;padding:6px 10px;text-align:left">Voce</th><th style="color:#c9a84c;padding:6px 10px;text-align:right">${d.year}</th><th style="color:#c9a84c;padding:6px 10px;text-align:right">${year2}</th><th style="color:#c9a84c;padding:6px 10px;text-align:right">Var. Ass.</th><th style="color:#c9a84c;padding:6px 10px;text-align:right">Var. %</th></tr></thead>
+      <tbody>
+        ${dRow('Ricavi Totali',d.ricavi,y2r)}
+        ${dRow('EBITDA',d.ebitda,y2ebitda)}
+        ${dRow('EBIT',d.ebit,y2ebit)}
+        ${dRow('Utile Netto',d.utileNetto,y2utile)}
+        ${dRow('Totale Attivo',d.totAttivo,y2att)}
+        ${dRow('Patrimonio Netto',d.pn,y2pn)}
+      </tbody>
+    </table>` : '';
+
+  const today = new Date().toLocaleDateString('it-IT');
+  const TH = 'style="background:#0a1628;color:#c9a84c;padding:6px 10px;text-align:left"';
+  const THR = 'style="background:#0a1628;color:#c9a84c;padding:6px 10px;text-align:right"';
+  const TD = 'style="padding:5px 10px;border-bottom:1px solid #ede7d9"';
+  const TDR = 'style="padding:5px 10px;border-bottom:1px solid #ede7d9;text-align:right;font-family:monospace"';
+  const TCAT = 'style="background:#162d5a;color:#c9a84c;font-weight:bold;font-size:8pt;letter-spacing:0.08em;padding:5px 10px"';
+  const TTOT = 'style="background:#ede7d9;font-weight:bold;border-top:2px solid #c9a84c;padding:5px 10px"';
+  const TTOTR = 'style="background:#ede7d9;font-weight:bold;border-top:2px solid #c9a84c;padding:5px 10px;text-align:right;font-family:monospace"';
+
+  const html = `<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8">
+<title>Analisi di Bilancio — ${d.year}</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,Helvetica,sans-serif;font-size:10pt;color:#1a1a2e;background:#fff;padding:0}
+table{width:100%;border-collapse:collapse;margin-bottom:14px;font-size:9pt}
+tr:nth-child(even) td{background:#faf9f6}
+h2{font-size:11pt;font-weight:bold;background:#0a1628;color:#c9a84c;padding:8px 12px;margin:20px 0 10px;border-left:4px solid #c9a84c}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
+.kpi{border:1px solid #ede7d9;border-radius:6px;padding:10px 12px;border-top:3px solid #c9a84c}
+.kpi-label{font-size:7.5pt;color:#6b7280;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px}
+.kpi-value{font-size:15pt;font-weight:bold;color:#0a1628}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:4px}
+@media print{@page{size:A4;margin:12mm 14mm}body{font-size:9pt}.kpi-grid{grid-template-columns:repeat(4,1fr)}}
+</style></head><body>
+
+<div style="background:#0a1628;color:#f5f0e8;padding:32px 24px;margin-bottom:24px">
+  <div style="font-size:20pt;font-weight:bold;color:#e8c97a;margin-bottom:6px">📊 Analisi di Bilancio Professionale</div>
+  <div style="font-size:9pt;color:#c9a84c;letter-spacing:0.1em">SISTEMA PROFESSIONALE DI CONTROLLO FINANZIARIO</div>
+  <div style="margin-top:16px;font-size:9pt;color:#aab">Anno: <strong style="color:#e8c97a">${d.year}</strong> &nbsp;|&nbsp; Generato il: ${today}</div>
+</div>
+
+<h2>1. Indicatori Chiave (KPI)</h2>
+<div class="kpi-grid">
+  <div class="kpi"><div class="kpi-label">ROE</div><div class="kpi-value">${p(roe)}</div></div>
+  <div class="kpi"><div class="kpi-label">ROI</div><div class="kpi-value">${p(roi)}</div></div>
+  <div class="kpi"><div class="kpi-label">ROS</div><div class="kpi-value">${p(ros)}</div></div>
+  <div class="kpi"><div class="kpi-label">EBITDA Margin</div><div class="kpi-value">${p(ebitdaMargin)}</div></div>
+  <div class="kpi"><div class="kpi-label">Current Ratio</div><div class="kpi-value">${r(currentRatio)}</div></div>
+  <div class="kpi"><div class="kpi-label">Quick Ratio</div><div class="kpi-value">${r(quickRatio)}</div></div>
+  <div class="kpi"><div class="kpi-label">Debt / Equity</div><div class="kpi-value">${r(deRatio)}</div></div>
+  <div class="kpi"><div class="kpi-label">PFN / EBITDA</div><div class="kpi-value">${r(pfnEbitda)}</div></div>
+</div>
+
+<div class="grid2">
+<div>
+<h2>2. Stato Patrimoniale Attivo</h2>
+<table>
+  <thead><tr><th ${TH}>Voce</th><th ${THR}>Importo</th><th ${THR}>%</th></tr></thead>
+  <tbody>
+    <tr><td colspan="3" ${TCAT}>ATTIVO FISSO</td></tr>
+    <tr><td ${TD}>&nbsp;&nbsp;Imm. Immateriali</td><td ${TDR}>${f(d.immImm)}</td><td ${TDR}>${d.totAttivo?p(d.immImm/d.totAttivo):'—'}</td></tr>
+    <tr><td ${TD}>&nbsp;&nbsp;Imm. Materiali</td><td ${TDR}>${f(d.immMat)}</td><td ${TDR}>${d.totAttivo?p(d.immMat/d.totAttivo):'—'}</td></tr>
+    <tr><td ${TD}>&nbsp;&nbsp;Imm. Finanziarie</td><td ${TDR}>${f(d.immFin)}</td><td ${TDR}>${d.totAttivo?p(d.immFin/d.totAttivo):'—'}</td></tr>
+    <tr><td ${TTOT}>Tot. Attivo Fisso</td><td ${TTOTR}>${f(d.totalImm)}</td><td ${TTOTR}>${d.totAttivo?p(d.totalImm/d.totAttivo):'—'}</td></tr>
+    <tr><td colspan="3" ${TCAT}>ATTIVO CIRCOLANTE</td></tr>
+    <tr><td ${TD}>&nbsp;&nbsp;Rimanenze</td><td ${TDR}>${f(d.rim)}</td><td ${TDR}>${d.totAttivo?p(d.rim/d.totAttivo):'—'}</td></tr>
+    <tr><td ${TD}>&nbsp;&nbsp;Crediti Commerciali</td><td ${TDR}>${f(d.creditiComm)}</td><td ${TDR}>${d.totAttivo?p(d.creditiComm/d.totAttivo):'—'}</td></tr>
+    <tr><td ${TD}>&nbsp;&nbsp;Disponibilità Liquide</td><td ${TDR}>${f(d.cassa)}</td><td ${TDR}>${d.totAttivo?p(d.cassa/d.totAttivo):'—'}</td></tr>
+    <tr><td ${TTOT}>Tot. Attivo Circolante</td><td ${TTOTR}>${f(d.totalCirc)}</td><td ${TTOTR}>${d.totAttivo?p(d.totalCirc/d.totAttivo):'—'}</td></tr>
+    <tr><td ${TTOT}>TOTALE ATTIVO</td><td ${TTOTR}>${f(d.totAttivo)}</td><td ${TTOTR}>100%</td></tr>
+  </tbody>
+</table>
+</div>
+<div>
+<h2>2. Stato Patrimoniale Passivo</h2>
+<table>
+  <thead><tr><th ${TH}>Voce</th><th ${THR}>Importo</th><th ${THR}>%</th></tr></thead>
+  <tbody>
+    <tr><td colspan="3" ${TCAT}>PATRIMONIO NETTO</td></tr>
+    <tr><td ${TD}>&nbsp;&nbsp;Capitale Sociale</td><td ${TDR}>${f(d.capitaleSociale||0)}</td><td ${TDR}>—</td></tr>
+    <tr><td ${TD}>&nbsp;&nbsp;Riserve & Utile</td><td ${TDR}>${f((d.riserve||0)+(d.utileEsErc||0)+(d.altreRiserve||0))}</td><td ${TDR}>—</td></tr>
+    <tr><td ${TTOT}>Totale P.N.</td><td ${TTOTR}>${f(d.pn)}</td><td ${TTOTR}>${d.totPassivo?p(d.pn/d.totPassivo):'—'}</td></tr>
+    <tr><td colspan="3" ${TCAT}>DEBITI & FONDI</td></tr>
+    <tr><td ${TD}>&nbsp;&nbsp;Fondi (TFR ecc.)</td><td ${TDR}>${f(d.fondi)}</td><td ${TDR}>${d.totPassivo?p(d.fondi/d.totPassivo):'—'}</td></tr>
+    <tr><td ${TD}>&nbsp;&nbsp;Debiti M/L Termine</td><td ${TDR}>${f(d.debLT)}</td><td ${TDR}>${d.totPassivo?p(d.debLT/d.totPassivo):'—'}</td></tr>
+    <tr><td ${TD}>&nbsp;&nbsp;Debiti Breve Termine</td><td ${TDR}>${f(d.debCT)}</td><td ${TDR}>${d.totPassivo?p(d.debCT/d.totPassivo):'—'}</td></tr>
+    <tr><td ${TTOT}>TOTALE PASSIVO</td><td ${TTOTR}>${f(d.totPassivo)}</td><td ${TTOTR}>100%</td></tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+<h2>3. Conto Economico Riclassificato</h2>
+<table>
+  <thead><tr><th ${TH}>Voce</th><th ${THR}>Importo</th><th ${THR}>% Ricavi</th></tr></thead>
+  <tbody>
+    <tr><td ${TD}>Ricavi Totali</td><td ${TDR}>${f(d.ricavi)}</td><td ${TDR}>100%</td></tr>
+    <tr><td ${TD}>&nbsp;&nbsp;(–) Costi operativi (esclusi amm.)</td><td ${TDR}>${f(-(d.ricavi-d.ebitda))}</td><td ${TDR}>—</td></tr>
+    <tr><td ${TTOT}>EBITDA</td><td ${TTOTR}>${f(d.ebitda)}</td><td ${TTOTR}>${d.ricavi?p(d.ebitda/d.ricavi):'—'}</td></tr>
+    <tr><td ${TD}>&nbsp;&nbsp;(–) Ammortamenti & Svalutazioni</td><td ${TDR}>${f(-(d.ammortamenti+d.svalutazioni))}</td><td ${TDR}>—</td></tr>
+    <tr><td ${TTOT}>EBIT</td><td ${TTOTR}>${f(d.ebit)}</td><td ${TTOTR}>${d.ricavi?p(d.ebit/d.ricavi):'—'}</td></tr>
+    <tr><td ${TD}>&nbsp;&nbsp;(±) Gestione finanziaria</td><td ${TDR}>${f(d.proventiFinanz-d.oneriFinanz)}</td><td ${TDR}>—</td></tr>
+    <tr><td ${TTOT}>EBT</td><td ${TTOTR}>${f(d.ebt)}</td><td ${TTOTR}>${d.ricavi?p(d.ebt/d.ricavi):'—'}</td></tr>
+    <tr><td ${TD}>&nbsp;&nbsp;(–) Imposte</td><td ${TDR}>${f(-d.imposte)}</td><td ${TDR}>—</td></tr>
+    <tr><td ${TTOT}>UTILE NETTO</td><td ${TTOTR}>${f(d.utileNetto)}</td><td ${TTOTR}>${d.ricavi?p(d.utileNetto/d.ricavi):'—'}</td></tr>
+  </tbody>
+</table>
+
+<div style="page-break-before:always"></div>
+<h2>4. Indici di Bilancio</h2>
+<table>
+  <thead><tr><th ${TH}>Indice</th><th ${THR}>Valore</th><th ${TH}>Giudizio</th></tr></thead>
+  <tbody>
+    <tr><td colspan="3" ${TCAT}>REDDITIVITÀ</td></tr>
+    <tr><td ${TD}>ROE — Return on Equity</td><td ${TDR}>${p(roe)}</td><td ${TD}>${bk(roe>0.10,roe>0.04)}</td></tr>
+    <tr><td ${TD}>ROI — Return on Investment</td><td ${TDR}>${p(roi)}</td><td ${TD}>${bk(roi>0.08,roi>0.03)}</td></tr>
+    <tr><td ${TD}>ROS — Return on Sales</td><td ${TDR}>${p(ros)}</td><td ${TD}>${bk(ros>0.08,ros>0.03)}</td></tr>
+    <tr><td ${TD}>EBITDA Margin</td><td ${TDR}>${p(ebitdaMargin)}</td><td ${TD}>${bk(ebitdaMargin>0.15,ebitdaMargin>0.05)}</td></tr>
+    <tr><td colspan="3" ${TCAT}>LIQUIDITÀ & SOLIDITÀ</td></tr>
+    <tr><td ${TD}>Current Ratio</td><td ${TDR}>${r(currentRatio)}</td><td ${TD}>${bk(currentRatio>1.5,currentRatio>1)}</td></tr>
+    <tr><td ${TD}>Quick Ratio</td><td ${TDR}>${r(quickRatio)}</td><td ${TD}>${bk(quickRatio>1,quickRatio>0.7)}</td></tr>
+    <tr><td ${TD}>Debt / Equity</td><td ${TDR}>${r(deRatio)}</td><td ${TD}>${bk(deRatio<1,deRatio<2.5)}</td></tr>
+    <tr><td ${TD}>PFN / EBITDA</td><td ${TDR}>${r(pfnEbitda)}</td><td ${TD}>${bk(pfnEbitda<3,pfnEbitda<6)}</td></tr>
+    <tr><td ${TD}>Interest Coverage</td><td ${TDR}>${r(intCover)}</td><td ${TD}>${bk(intCover>3,intCover>1)}</td></tr>
+  </tbody>
+</table>
+
+${confrontoHtml}
+
+<div style="margin-top:40px;border-top:2px solid #c9a84c;padding-top:8px;font-size:8pt;color:#6b7280;display:flex;justify-content:space-between">
+  <span>Analisi di Bilancio Professionale — Documento riservato</span>
+  <span>Generato il ${today}</span>
+</div>
+</body></html>`;
+
+  const win = window.open('', '_blank');
+  if (!win) { alert('Il browser ha bloccato il popup. Consenti i popup per questo sito e riprova.'); return; }
+  win.document.write(html);
+  win.document.close();
+  setTimeout(() => { win.focus(); win.print(); }, 400);
+}
+
+// ============================================================
+// EXCEL IMPORT (Anno 1)
 // ============================================================
 function importExcel(event) {
   const file = event.target.files[0];
