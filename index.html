@@ -2530,16 +2530,20 @@ h2{font-size:11pt;font-weight:bold;background:#0a1628;color:#c9a84c;padding:8px 
 <table>
   <thead><tr><th ${TH}>Voce</th><th ${THR}>Importo</th><th ${THR}>%</th></tr></thead>
   <tbody>
-    <tr><td colspan="3" ${TCAT}>ATTIVO FISSO</td></tr>
-    <tr><td ${TD}>&nbsp;&nbsp;Imm. Immateriali</td><td ${TDR}>${f(d.immImm)}</td><td ${TDR}>${d.totAttivo?p(d.immImm/d.totAttivo):'—'}</td></tr>
-    <tr><td ${TD}>&nbsp;&nbsp;Imm. Materiali</td><td ${TDR}>${f(d.immMat)}</td><td ${TDR}>${d.totAttivo?p(d.immMat/d.totAttivo):'—'}</td></tr>
-    <tr><td ${TD}>&nbsp;&nbsp;Imm. Finanziarie</td><td ${TDR}>${f(d.immFin)}</td><td ${TDR}>${d.totAttivo?p(d.immFin/d.totAttivo):'—'}</td></tr>
+    <tr><td colspan="3" ${TCAT}>ATTIVO FISSO — Immobilizzazioni</td></tr>
+    <tr><td ${TD}>&nbsp;&nbsp;Imm. Immateriali (avviamento, brevetti, ecc.)</td><td ${TDR}>${f(d.immImm)}</td><td ${TDR}>${d.totAttivo?p(d.immImm/d.totAttivo):'—'}</td></tr>
+    <tr><td ${TD}>&nbsp;&nbsp;Imm. Materiali (terreni, impianti, attrezzature)</td><td ${TDR}>${f(d.immMat)}</td><td ${TDR}>${d.totAttivo?p(d.immMat/d.totAttivo):'—'}</td></tr>
+    <tr><td ${TD}>&nbsp;&nbsp;Imm. Finanziarie (partecipazioni, crediti fin. L/T, titoli)</td><td ${TDR}>${f(d.immFin)}</td><td ${TDR}>${d.totAttivo?p(d.immFin/d.totAttivo):'—'}</td></tr>
     <tr><td ${TTOT}>Tot. Attivo Fisso</td><td ${TTOTR}>${f(d.totalImm)}</td><td ${TTOTR}>${d.totAttivo?p(d.totalImm/d.totAttivo):'—'}</td></tr>
     <tr><td colspan="3" ${TCAT}>ATTIVO CIRCOLANTE</td></tr>
-    <tr><td ${TD}>&nbsp;&nbsp;Rimanenze</td><td ${TDR}>${f(d.rim)}</td><td ${TDR}>${d.totAttivo?p(d.rim/d.totAttivo):'—'}</td></tr>
+    <tr><td ${TD}>&nbsp;&nbsp;Rimanenze (scorte)</td><td ${TDR}>${f(d.rim)}</td><td ${TDR}>${d.totAttivo?p(d.rim/d.totAttivo):'—'}</td></tr>
     <tr><td ${TD}>&nbsp;&nbsp;Crediti Commerciali</td><td ${TDR}>${f(d.creditiComm)}</td><td ${TDR}>${d.totAttivo?p(d.creditiComm/d.totAttivo):'—'}</td></tr>
+    <tr><td ${TD}>&nbsp;&nbsp;Crediti Tributari</td><td ${TDR}>${f(d.creditiTrib)}</td><td ${TDR}>${d.totAttivo?p(d.creditiTrib/d.totAttivo):'—'}</td></tr>
+    <tr><td ${TD}>&nbsp;&nbsp;Attività Finanziarie C/T</td><td ${TDR}>${f(d.attivFinCT)}</td><td ${TDR}>${d.totAttivo?p(d.attivFinCT/d.totAttivo):'—'}</td></tr>
+    <tr><td ${TD}>&nbsp;&nbsp;Altri Crediti</td><td ${TDR}>${f(d.altriCrediti)}</td><td ${TDR}>${d.totAttivo?p(d.altriCrediti/d.totAttivo):'—'}</td></tr>
     <tr><td ${TD}>&nbsp;&nbsp;Disponibilità Liquide</td><td ${TDR}>${f(d.cassa)}</td><td ${TDR}>${d.totAttivo?p(d.cassa/d.totAttivo):'—'}</td></tr>
     <tr><td ${TTOT}>Tot. Attivo Circolante</td><td ${TTOTR}>${f(d.totalCirc)}</td><td ${TTOTR}>${d.totAttivo?p(d.totalCirc/d.totAttivo):'—'}</td></tr>
+    <tr><td ${TD}>&nbsp;&nbsp;Ratei & Risconti Attivi</td><td ${TDR}>${f(d.rateiAtt)}</td><td ${TDR}>${d.totAttivo?p(d.rateiAtt/d.totAttivo):'—'}</td></tr>
     <tr><td ${TTOT}>TOTALE ATTIVO</td><td ${TTOTR}>${f(d.totAttivo)}</td><td ${TTOTR}>100%</td></tr>
   </tbody>
 </table>
@@ -2550,14 +2554,26 @@ h2{font-size:11pt;font-weight:bold;background:#0a1628;color:#c9a84c;padding:8px 
   <thead><tr><th ${TH}>Voce</th><th ${THR}>Importo</th><th ${THR}>%</th></tr></thead>
   <tbody>
     <tr><td colspan="3" ${TCAT}>PATRIMONIO NETTO</td></tr>
-    <tr><td ${TD}>&nbsp;&nbsp;Capitale Sociale</td><td ${TDR}>${f(d.capitaleSociale||0)}</td><td ${TDR}>—</td></tr>
-    <tr><td ${TD}>&nbsp;&nbsp;Riserve & Utile</td><td ${TDR}>${f((d.riserve||0)+(d.utileEsErc||0)+(d.altreRiserve||0))}</td><td ${TDR}>—</td></tr>
-    <tr><td ${TTOT}>Totale P.N.</td><td ${TTOTR}>${f(d.pn)}</td><td ${TTOTR}>${d.totPassivo?p(d.pn/d.totPassivo):'—'}</td></tr>
-    <tr><td colspan="3" ${TCAT}>DEBITI & FONDI</td></tr>
-    <tr><td ${TD}>&nbsp;&nbsp;Fondi (TFR ecc.)</td><td ${TDR}>${f(d.fondi)}</td><td ${TDR}>${d.totPassivo?p(d.fondi/d.totPassivo):'—'}</td></tr>
-    <tr><td ${TD}>&nbsp;&nbsp;Debiti M/L Termine</td><td ${TDR}>${f(d.debLT)}</td><td ${TDR}>${d.totPassivo?p(d.debLT/d.totPassivo):'—'}</td></tr>
-    <tr><td ${TD}>&nbsp;&nbsp;Debiti Breve Termine</td><td ${TDR}>${f(d.debCT)}</td><td ${TDR}>${d.totPassivo?p(d.debCT/d.totPassivo):'—'}</td></tr>
-    <tr><td ${TTOT}>TOTALE PASSIVO</td><td ${TTOTR}>${f(d.totPassivo)}</td><td ${TTOTR}>100%</td></tr>
+    <tr><td ${TD}>&nbsp;&nbsp;Capitale Sociale</td><td ${TDR}>${f(d.capitaleSociale||0)}</td><td ${TDR}>${d.totPassivo?p((d.capitaleSociale||0)/d.totPassivo):'—'}</td></tr>
+    <tr><td ${TD}>&nbsp;&nbsp;Riserve</td><td ${TDR}>${f((d.riserve||0)+(d.altreRiserve||0))}</td><td ${TDR}>${d.totPassivo?p(((d.riserve||0)+(d.altreRiserve||0))/d.totPassivo):'—'}</td></tr>
+    <tr><td ${TD}>&nbsp;&nbsp;Utile/Perdita d'Esercizio</td><td ${TDR}>${f(d.utileEsErc||0)}</td><td ${TDR}>${d.totPassivo?p((d.utileEsErc||0)/d.totPassivo):'—'}</td></tr>
+    <tr><td ${TTOT}>Totale Patrimonio Netto</td><td ${TTOTR}>${f(d.pn)}</td><td ${TTOTR}>${d.totPassivo?p(d.pn/d.totPassivo):'—'}</td></tr>
+    <tr><td colspan="3" ${TCAT}>PASSIVITÀ CONSOLIDATE (M/L Termine)</td></tr>
+    <tr><td ${TD}>&nbsp;&nbsp;Fondo TFR</td><td ${TDR}>${f(d.fondoTFR)}</td><td ${TDR}>${d.totPassivo?p(d.fondoTFR/d.totPassivo):'—'}</td></tr>
+    <tr><td ${TD}>&nbsp;&nbsp;Altri Fondi Rischi & Oneri</td><td ${TDR}>${f(d.altriFondi)}</td><td ${TDR}>${d.totPassivo?p(d.altriFondi/d.totPassivo):'—'}</td></tr>
+    <tr><td ${TD}>&nbsp;&nbsp;Debiti Bancari L/T</td><td ${TDR}>${f(d.debBancLT)}</td><td ${TDR}>${d.totPassivo?p(d.debBancLT/d.totPassivo):'—'}</td></tr>
+    <tr><td ${TD}>&nbsp;&nbsp;Obbligazioni & Debiti Soci L/T</td><td ${TDR}>${f(d.obbligazioni+d.debitiSociLT)}</td><td ${TDR}>${d.totPassivo?p((d.obbligazioni+d.debitiSociLT)/d.totPassivo):'—'}</td></tr>
+    <tr><td ${TD}>&nbsp;&nbsp;Altri Debiti L/T</td><td ${TDR}>${f(d.altriDebLT)}</td><td ${TDR}>${d.totPassivo?p(d.altriDebLT/d.totPassivo):'—'}</td></tr>
+    <tr><td ${TTOT}>Tot. Pass. Consolidate</td><td ${TTOTR}>${f(d.fondi+d.debLT)}</td><td ${TTOTR}>${d.totPassivo?p((d.fondi+d.debLT)/d.totPassivo):'—'}</td></tr>
+    <tr><td colspan="3" ${TCAT}>PASSIVITÀ CORRENTI (Breve Termine)</td></tr>
+    <tr><td ${TD}>&nbsp;&nbsp;Debiti Bancari C/T</td><td ${TDR}>${f(d.debBancCT)}</td><td ${TDR}>${d.totPassivo?p(d.debBancCT/d.totPassivo):'—'}</td></tr>
+    <tr><td ${TD}>&nbsp;&nbsp;Debiti Fornitori</td><td ${TDR}>${f(d.debFornitori)}</td><td ${TDR}>${d.totPassivo?p(d.debFornitori/d.totPassivo):'—'}</td></tr>
+    <tr><td ${TD}>&nbsp;&nbsp;Debiti Tributari</td><td ${TDR}>${f(d.debTrib)}</td><td ${TDR}>${d.totPassivo?p(d.debTrib/d.totPassivo):'—'}</td></tr>
+    <tr><td ${TD}>&nbsp;&nbsp;Debiti vs Dipendenti</td><td ${TDR}>${f(d.debDip)}</td><td ${TDR}>${d.totPassivo?p(d.debDip/d.totPassivo):'—'}</td></tr>
+    <tr><td ${TD}>&nbsp;&nbsp;Altri Debiti C/T</td><td ${TDR}>${f(d.altriDebCT)}</td><td ${TDR}>${d.totPassivo?p(d.altriDebCT/d.totPassivo):'—'}</td></tr>
+    <tr><td ${TD}>&nbsp;&nbsp;Ratei & Risconti Passivi</td><td ${TDR}>${f(d.rateiPass)}</td><td ${TDR}>${d.totPassivo?p(d.rateiPass/d.totPassivo):'—'}</td></tr>
+    <tr><td ${TTOT}>Tot. Pass. Correnti</td><td ${TTOTR}>${f(d.debCT+d.rateiPass)}</td><td ${TTOTR}>${d.totPassivo?p((d.debCT+d.rateiPass)/d.totPassivo):'—'}</td></tr>
+    <tr><td ${TTOT}>TOTALE PASSIVO + P.N.</td><td ${TTOTR}>${f(d.totPassivo)}</td><td ${TTOTR}>100%</td></tr>
   </tbody>
 </table>
 </div>
@@ -2567,14 +2583,18 @@ h2{font-size:11pt;font-weight:bold;background:#0a1628;color:#c9a84c;padding:8px 
 <table>
   <thead><tr><th ${TH}>Voce</th><th ${THR}>Importo</th><th ${THR}>% Ricavi</th></tr></thead>
   <tbody>
-    <tr><td ${TD}>Ricavi Totali</td><td ${TDR}>${f(d.ricavi)}</td><td ${TDR}>100%</td></tr>
-    <tr><td ${TD}>&nbsp;&nbsp;(–) Costi operativi (esclusi amm.)</td><td ${TDR}>${f(-(d.ricavi-d.ebitda))}</td><td ${TDR}>—</td></tr>
-    <tr><td ${TTOT}>EBITDA</td><td ${TTOTR}>${f(d.ebitda)}</td><td ${TTOTR}>${d.ricavi?p(d.ebitda/d.ricavi):'—'}</td></tr>
-    <tr><td ${TD}>&nbsp;&nbsp;(–) Ammortamenti & Svalutazioni</td><td ${TDR}>${f(-(d.ammortamenti+d.svalutazioni))}</td><td ${TDR}>—</td></tr>
-    <tr><td ${TTOT}>EBIT</td><td ${TTOTR}>${f(d.ebit)}</td><td ${TTOTR}>${d.ricavi?p(d.ebit/d.ricavi):'—'}</td></tr>
-    <tr><td ${TD}>&nbsp;&nbsp;(±) Gestione finanziaria</td><td ${TDR}>${f(d.proventiFinanz-d.oneriFinanz)}</td><td ${TDR}>—</td></tr>
-    <tr><td ${TTOT}>EBT</td><td ${TTOTR}>${f(d.ebt)}</td><td ${TTOTR}>${d.ricavi?p(d.ebt/d.ricavi):'—'}</td></tr>
-    <tr><td ${TD}>&nbsp;&nbsp;(–) Imposte</td><td ${TDR}>${f(-d.imposte)}</td><td ${TDR}>—</td></tr>
+    <tr><td ${TD}>Ricavi Netti di Vendita</td><td ${TDR}>${f(d.ricavi)}</td><td ${TDR}>100%</td></tr>
+    <tr><td ${TD}>&nbsp;&nbsp;(–) Costi Mat. Prime & Servizi</td><td ${TDR}>${f(-(d.materePrime+d.costiServizi))}</td><td ${TDR}>${d.ricavi?p((d.materePrime+d.costiServizi)/d.ricavi):'—'}</td></tr>
+    <tr><td ${TD}>&nbsp;&nbsp;(–) Costi del Personale</td><td ${TDR}>${f(-d.costiPersonale)}</td><td ${TDR}>${d.ricavi?p(d.costiPersonale/d.ricavi):'—'}</td></tr>
+    <tr><td ${TD}>&nbsp;&nbsp;(–) Altri Costi Operativi</td><td ${TDR}>${f(-(d.ricavi - d.materePrime - d.costiServizi - d.costiPersonale - d.ebitda))}</td><td ${TDR}>—</td></tr>
+    <tr><td ${TTOT}>EBITDA (Margine Operativo Lordo)</td><td ${TTOTR}>${f(d.ebitda)}</td><td ${TTOTR}>${d.ricavi?p(d.ebitda/d.ricavi):'—'}</td></tr>
+    <tr><td ${TD}>&nbsp;&nbsp;(–) Ammortamenti</td><td ${TDR}>${f(-d.ammortamenti)}</td><td ${TDR}>—</td></tr>
+    <tr><td ${TD}>&nbsp;&nbsp;(–) Svalutazioni</td><td ${TDR}>${f(-d.svalutazioni)}</td><td ${TDR}>—</td></tr>
+    <tr><td ${TTOT}>EBIT (Reddito Operativo)</td><td ${TTOTR}>${f(d.ebit)}</td><td ${TTOTR}>${d.ricavi?p(d.ebit/d.ricavi):'—'}</td></tr>
+    <tr><td ${TD}>&nbsp;&nbsp;(+) Proventi Finanziari</td><td ${TDR}>${f(d.proventiFinanz)}</td><td ${TDR}>—</td></tr>
+    <tr><td ${TD}>&nbsp;&nbsp;(–) Oneri Finanziari</td><td ${TDR}>${f(-d.oneriFinanz)}</td><td ${TDR}>—</td></tr>
+    <tr><td ${TTOT}>EBT (Reddito ante Imposte)</td><td ${TTOTR}>${f(d.ebt)}</td><td ${TTOTR}>${d.ricavi?p(d.ebt/d.ricavi):'—'}</td></tr>
+    <tr><td ${TD}>&nbsp;&nbsp;(–) Imposte sul Reddito</td><td ${TDR}>${f(-d.imposte)}</td><td ${TDR}>—</td></tr>
     <tr><td ${TTOT}>UTILE NETTO</td><td ${TTOTR}>${f(d.utileNetto)}</td><td ${TTOTR}>${d.ricavi?p(d.utileNetto/d.ricavi):'—'}</td></tr>
   </tbody>
 </table>
